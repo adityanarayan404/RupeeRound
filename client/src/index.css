@@ -1,0 +1,212 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * RupeeRound palette — Pantone 2025 Mocha Mousse family (approximate sRGB):
+ *   Cannoli Cream #F1F0E2 · Cream Tan #E4C7B8 · Safari #BAAA91 · Sirocco #C39D88
+ *   Mocha Mousse #A47864 · Chanterelle #A28776 · Baltic Amber #8B645A · Chocolate Martini #56443E
+ * Gain/loss colours sit outside the palette because money needs a clear up/down signal.
+ */
+:root {
+  --backdrop: #e6dccb;
+  --bg: #f1f0e2;
+  --card: #fbf8f1;
+  --subtle: #ebe2d4;
+  --tan: #e4c7b8;
+  --line: #e0d6c6;
+  --line-strong: #baaa91;
+  --ink: #56443e;
+  --muted: #8b645a;
+  --primary: #8b645a;
+  --primary-strong: #56443e;
+  --on-primary: #fffdf8;
+  --accent: #a47864;
+  --accent-soft: #c39d88;
+  --chanterelle: #a28776;
+  --gain: #4f7d52;
+  --loss: #a9472f;
+  --wallet-from: #a47864;
+  --wallet-to: #56443e;
+  --frame: #1f1714;
+  color-scheme: light;
+}
+
+.dark {
+  --backdrop: #0f0b09;
+  --bg: #1e1714;
+  --card: #2a211d;
+  --subtle: #352a25;
+  --tan: #4a3a33;
+  --line: #3d302a;
+  --line-strong: #56443e;
+  --ink: #f1f0e2;
+  --muted: #baaa91;
+  --primary: #c39d88;
+  --primary-strong: #e4c7b8;
+  --on-primary: #2a1f1b;
+  --accent: #a47864;
+  --accent-soft: #c39d88;
+  --chanterelle: #a28776;
+  --gain: #8dbb8f;
+  --loss: #e08a73;
+  --wallet-from: #8b645a;
+  --wallet-to: #3a2c27;
+  --frame: #000000;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-backdrop: var(--backdrop);
+  --color-bg: var(--bg);
+  --color-card: var(--card);
+  --color-subtle: var(--subtle);
+  --color-tan: var(--tan);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-on-primary: var(--on-primary);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-chanterelle: var(--chanterelle);
+  --color-gain: var(--gain);
+  --color-loss: var(--loss);
+  --color-frame: var(--frame);
+}
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+
+  --animate-fade-in: fade-in 200ms ease-out both;
+  --animate-sheet-up: sheet-up 320ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  --animate-pop: pop 420ms cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  --animate-shake: shake 360ms ease-in-out;
+  --animate-toast: toast-in 260ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+  --animate-rise: rise 420ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+  }
+  @keyframes pop {
+    from {
+      transform: scale(0.4);
+      opacity: 0;
+    }
+  }
+  @keyframes shake {
+    20%,
+    60% {
+      transform: translateX(-8px);
+    }
+    40%,
+    80% {
+      transform: translateX(8px);
+    }
+  }
+  @keyframes toast-in {
+    from {
+      transform: translateY(-16px);
+      opacity: 0;
+    }
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(12px);
+      opacity: 0;
+    }
+  }
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    background: var(--backdrop);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* Phone frame: real phones use their safe areas; the desktop frame fakes a status bar. */
+.phone {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (min-width: 48rem) {
+  .phone {
+    --safe-top: 44px;
+    --safe-bottom: 12px;
+  }
+}
+
+@utility pt-safe {
+  padding-top: calc(var(--safe-top) + 0.75rem);
+}
+
+@utility pb-safe {
+  padding-bottom: calc(var(--safe-bottom) + 1rem);
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@utility skeleton {
+  background: linear-gradient(90deg, var(--subtle) 25%, var(--card) 50%, var(--subtle) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}

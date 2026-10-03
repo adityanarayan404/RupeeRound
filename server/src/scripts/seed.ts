@@ -115,7 +115,9 @@ async function main(): Promise<void> {
       const amountPaise = rupees * 100 + (random() < 0.2 ? 50 : 0)
       const roundUp = calculateRoundUp(amountPaise, DEMO_MULTIPLE)
       roundUpsPaise += roundUp.roundUpPaise
-      const at = daysAgo(day, 8 + Math.floor(random() * 13), Math.floor(random() * 60))
+      const planned = daysAgo(day, 8 + Math.floor(random() * 13), Math.floor(random() * 60))
+      // Today's payments can't be in the future: keep them a few minutes apart before now.
+      const at = new Date(Math.min(planned.getTime(), Date.now() - (i + 1) * 7 * 60_000))
       transactions.push({
         _id: new Types.ObjectId(),
         user: userId,
