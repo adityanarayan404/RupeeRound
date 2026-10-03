@@ -6,6 +6,7 @@ import Card from '@/components/Card'
 import FundCard from '@/components/FundCard'
 import ScreenHeader from '@/components/ScreenHeader'
 import Skeleton from '@/components/Skeleton'
+import SuggestionCard from '@/components/SuggestionCard'
 import { ErrorMessage } from '@/components/StateMessage'
 import { useUser } from '@/context/AuthContext'
 import { useChartColors } from '@/context/ThemeContext'
@@ -81,6 +82,10 @@ export default function Invest() {
     <>
       <ScreenHeader title="Invest" subtitle="Simulated investments · real NAVs" />
       <div className="space-y-6 px-5">
+        <SuggestionCard
+          onChooseOther={() => document.getElementById('funds')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+        />
+
         {portfolio.loading ? (
           <Skeleton className="h-64 rounded-3xl" />
         ) : portfolio.error || !portfolio.data ? (
@@ -99,7 +104,8 @@ export default function Invest() {
           )}
         </div>
 
-        <section>
+        {/* scroll-mt keeps the heading clear of the sticky header when jumped to. */}
+        <section id="funds" className="scroll-mt-28">
           <h2 className="mb-3 text-lg font-bold">Funds</h2>
           {funds.loading ? (
             <div className="space-y-3">

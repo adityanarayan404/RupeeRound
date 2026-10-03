@@ -1,6 +1,13 @@
 // Shapes of the JSON the API sends and receives. Shared by client and server.
-import type { FundCategory, MerchantCategory } from './constants.ts'
+import type { DropReaction, FundCategory, IncomeType, MerchantCategory, RiskHorizon } from './constants.ts'
 import type { InvestmentPlan } from './invest.ts'
+import type { FundMetrics } from './metrics.ts'
+
+export interface RiskProfile {
+  horizon: RiskHorizon
+  dropReaction: DropReaction
+  income: IncomeType
+}
 
 export interface UserDTO {
   id: string
@@ -8,6 +15,8 @@ export interface UserDTO {
   phone: string
   defaultMultiple: number
   selectedFundId: string | null
+  /** null until the user answers the 3 risk questions. */
+  riskProfile: RiskProfile | null
   createdAt: string
 }
 
@@ -153,6 +162,30 @@ export interface GoalsResponse {
   savedPaise: number
   goals: GoalDTO[]
 }
+
+/** 'ai' = Groq wrote the explanation; 'rules' = the built-in template did. The pick itself is always rule-based. */
+export type SuggestionSource = 'ai' | 'rules'
+
+export interface FundSuggestionDTO {
+  fund: FundDTO
+  category: FundCategory
+  /** 0–6 from the risk answers; higher = more comfortable with ups and downs. */
+  riskScore: number
+  /** Plain-English facts behind the pick, in order. */
+  reasons: string[]
+  /** Computed from the stored mfapi.in NAV history (about the last year). */
+  metrics: FundMetrics
+  reachableNow: boolean
+  /** 0 when the wallet already covers the fund minimum. */
+  shortfallPaise: number
+  /** A lower-minimum fund the wallet covers now, shown only when the suggestion isn't reachable yet. */
+  alternativeFund: FundDTO | null
+  /** Up to 3 sentences, always ending with ADVISOR_DISCLAIMER. */
+  explanation: string
+  source: SuggestionSource
+}
+
+export type AdvisorResponse = { needsProfile: true } | { needsProfile: false; suggestion: FundSuggestionDTO }
 
 export interface ApiErrorBody {
   error: {

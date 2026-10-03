@@ -17,6 +17,14 @@ export function toUserDTO(user: WithId<IUser>): UserDTO {
     phone: user.phone,
     defaultMultiple: user.defaultMultiple,
     selectedFundId: user.selectedFund ? user.selectedFund.toString() : null,
+    // Copy the three fields so we send plain JSON, not a Mongoose sub-document.
+    riskProfile: user.riskProfile
+      ? {
+          horizon: user.riskProfile.horizon,
+          dropReaction: user.riskProfile.dropReaction,
+          income: user.riskProfile.income,
+        }
+      : null,
     createdAt: user.createdAt.toISOString(),
   }
 }

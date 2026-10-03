@@ -68,5 +68,5 @@ export function useApi<T>(path: string | null): ApiQuery<T> {
 
 /** Everything that changes after a payment, top-up or investment. */
 export function invalidateMoney(): void {
-  invalidate('/wallet', '/transactions', '/portfolio', '/goals', '/investments', '/funds')
+  invalidate('/wallet', '/transactions', '/portfolio', '/goals', '/investments', '/funds', '/advisor')
 }

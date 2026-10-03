@@ -46,7 +46,7 @@ Run `pnpm seed` again to reset the demo account.
 - **API on Render:** Web Service, root directory = repo root.
   - Build command: `pnpm install --frozen-lockfile`
   - Start command: `pnpm start`
-  - Env vars: `MONGODB_URI`, `JWT_SECRET`, `CLIENT_ORIGIN=https://<your-app>.vercel.app`
+  - Env vars: `MONGODB_URI`, `JWT_SECRET`, `CLIENT_ORIGIN=https://<your-app>.vercel.app`, and optionally `GROQ_API_KEY` / `GROQ_MODEL` for AI-written fund suggestion explanations (without them the built-in template is used)
 - **App on Vercel:** root directory `client`.
   - Build command: `pnpm build`
   - Output directory: `dist`

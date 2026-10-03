@@ -1,4 +1,10 @@
-import { isRoundUpMultiple, type UserDTO } from '@rupeeround/shared'
+import {
+  DROP_REACTIONS,
+  INCOME_TYPES,
+  RISK_HORIZONS,
+  isRoundUpMultiple,
+  type UserDTO,
+} from '@rupeeround/shared'
 import { Router } from 'express'
 import { Types } from 'mongoose'
 import { z } from 'zod'
@@ -45,6 +51,25 @@ meRouter.patch('/', async (req, res) => {
     }
     user.selectedFund = updates.selectedFundId ? new Types.ObjectId(updates.selectedFundId) : null
   }
+  await user.save()
+
+  const body: UserDTO = toUserDTO(user)
+  res.json(body)
+})
+
+/** Saves the answers to the 3 risk questions used by the fund suggestion. */
+meRouter.patch('/risk-profile', async (req, res) => {
+  const riskProfile = parse(
+    z.object({
+      horizon: z.enum(RISK_HORIZONS),
+      dropReaction: z.enum(DROP_REACTIONS),
+      income: z.enum(INCOME_TYPES),
+    }),
+    req.body,
+  )
+
+  const user = await currentUser(res.locals.userId)
+  user.riskProfile = riskProfile
   await user.save()
 
   const body: UserDTO = toUserDTO(user)

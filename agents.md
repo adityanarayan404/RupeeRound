@@ -15,7 +15,7 @@ pnpm workspace with three packages:
 - Node.js 22+ and pnpm 10, pinned in `.mise.toml`; use `pnpm`, never npm or yarn
 - `pnpm dev` - runs API (port 4000) and Vite (port 8443) together; Vite proxies `/api` to the API
 - `pnpm seed` - resets the demo account (phone 98765 43210, PIN 1234)
-- `pnpm test` - unit tests for the shared money logic
+- `pnpm test` - unit tests for the shared money/metrics logic and the server advisor rules
 - `pnpm typecheck` - TypeScript across all packages
 - `pnpm build` - production build of the client
 - `server/.env` holds `MONGODB_URI` and `JWT_SECRET` (see `server/.env.example`); never commit it
@@ -27,11 +27,19 @@ pnpm workspace with three packages:
 - Wallet changes (payment, top-up, investment) run inside a MongoDB transaction together with the record they create.
 - Fund NAVs are real (mfapi.in, cached on the fund document); fund minimums are demo values and must be labelled as such.
 
+## Fund suggestion (advisor)
+
+- The rules decide, the AI only explains. `server/src/services/advisorRules.ts` (pure, unit-tested) scores the 3 risk answers 0–6 → Large/Mid/Small Cap and checks the wallet against the fund minimum. Keep the scoring in `RISK_SCORE_TABLE`.
+- Metrics come from the stored mfapi.in NAV history via `fundMetrics` in `shared/src/metrics.ts`.
+- `server/src/services/advisor.ts` asks Groq (`GROQ_MODEL`, default `openai/gpt-oss-20b`) to word the explanation, checks the reply (no invented numbers, no "best/guaranteed/sure", max 3 sentences) and falls back to `templateExplanation` on any problem. Results are cached in memory for 3 hours.
+- Only computed facts go to Groq: never name, phone or the wallet balance. Every explanation ends with `ADVISOR_DISCLAIMER`.
+- `GROQ_API_KEY` lives only in `server/.env`. Never put it in client code, `VITE_` variables, logs or commits.
+
 ## Server structure
 
 - `server/src/index.ts` - connects to MongoDB, seeds the three funds, starts the API
 - `server/src/app.ts` - middleware and route mounting; all routes except `/api/auth` and `/api/health` require a Bearer JWT
-- `server/src/routes/` - one router per resource (auth, me, transactions, wallet, funds, investments, portfolio, goals); request bodies are validated with zod via `parse()`
+- `server/src/routes/` - one router per resource (auth, me, transactions, wallet, funds, investments, portfolio, goals, advisor); request bodies are validated with zod via `parse()`
 - `server/src/services/` - auth (PIN hashing, JWT, PIN lockout), wallet, funds (mfapi.in NAV fetching and caching)
 - `server/src/models/` - Mongoose models
 - `server/src/utils/serialize.ts` - converts documents to the DTOs in `shared/src/types.ts`

@@ -1,11 +1,23 @@
 import { calculateRoundUp, formatPaise, type FundDTO, type UserDTO } from '@rupeeround/shared'
-import { ChevronRight, Download, Info, KeyRound, LogOut, Moon, Repeat, TrendingUp, type LucideIcon } from 'lucide-react'
+import {
+  ChevronRight,
+  Download,
+  Info,
+  KeyRound,
+  ListChecks,
+  LogOut,
+  Moon,
+  Repeat,
+  TrendingUp,
+  type LucideIcon,
+} from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useNavigate } from 'react-router'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
 import MultipleChips from '@/components/MultipleChips'
 import PinPad from '@/components/PinPad'
+import RiskSheet, { describeRiskProfile } from '@/components/RiskSheet'
 import ScreenHeader from '@/components/ScreenHeader'
 import Sheet from '@/components/Sheet'
 import Switch from '@/components/Switch'
@@ -157,7 +169,7 @@ export default function Profile() {
   const { theme, setTheme } = useTheme()
   const navigate = useNavigate()
   const funds = useApi<FundDTO[]>('/funds')
-  const [sheet, setSheet] = useState<'multiple' | 'pin' | 'logout' | null>(null)
+  const [sheet, setSheet] = useState<'multiple' | 'pin' | 'logout' | 'risk' | null>(null)
   const [installable, setInstallable] = useState(canInstall)
   const fund = funds.data?.find((candidate) => candidate.id === user.selectedFundId)
 
@@ -186,6 +198,7 @@ export default function Profile() {
             value={fund ? fund.shortName : 'No fund chosen'}
             onClick={() => navigate(fund ? `/invest/${fund.id}` : '/invest')}
           />
+          <Row icon={ListChecks} label="Risk answers" value={describeRiskProfile(user)} onClick={() => setSheet('risk')} />
           <Row
             icon={Moon}
             label="Dark mode"
@@ -214,6 +227,7 @@ export default function Profile() {
       </div>
 
       {sheet === 'multiple' && <MultipleSheet open onClose={() => setSheet(null)} />}
+      {sheet === 'risk' && <RiskSheet open onClose={() => setSheet(null)} />}
       <ChangePinSheet open={sheet === 'pin'} onClose={() => setSheet(null)} />
       <Sheet open={sheet === 'logout'} onClose={() => setSheet(null)} title="Log out?">
         <p className="-mt-2 text-sm text-muted">You'll need your phone number and PIN to log back in.</p>

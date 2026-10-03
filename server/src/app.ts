@@ -5,6 +5,7 @@ import helmet from 'helmet'
 import { config } from './config.ts'
 import { requireAuth } from './middleware/auth.ts'
 import { errorHandler, notFound } from './middleware/errors.ts'
+import { advisorRouter } from './routes/advisor.ts'
 import { authRouter } from './routes/auth.ts'
 import { fundsRouter } from './routes/funds.ts'
 import { goalsRouter } from './routes/goals.ts'
@@ -40,6 +41,13 @@ export function createApp(): express.Express {
   app.use('/api/investments', requireAuth, investmentsRouter)
   app.use('/api/portfolio', requireAuth, portfolioRouter)
   app.use('/api/goals', requireAuth, goalsRouter)
+  // Limited because each suggestion may call the Groq API.
+  app.use(
+    '/api/advisor',
+    requireAuth,
+    rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: 'draft-8', legacyHeaders: false }),
+    advisorRouter,
+  )
 
   app.use('/api', notFound)
   app.use(errorHandler)

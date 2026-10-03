@@ -14,8 +14,8 @@ import {
   type WalletDTO,
 } from '@rupeeround/shared'
 import { Check, Info, Plus, Sparkles } from 'lucide-react'
-import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
@@ -288,10 +288,19 @@ export default function FundDetail() {
   const [sheet, setSheet] = useState<'invest' | 'topup' | null>(null)
   const [selecting, setSelecting] = useState(false)
 
+  const [searchParams, setSearchParams] = useSearchParams()
   const fund = funds.data?.find((candidate) => candidate.id === fundId)
   const holding = portfolio.data?.holdings.find((candidate) => candidate.fund.id === fundId)
   const plan = fund && wallet.data ? planInvestment(wallet.data.balancePaise, fund.minInvestmentPaise) : null
   const isSelected = user.selectedFundId === fundId
+
+  // "/invest/:id?invest=1" (from the suggestion card) opens the invest sheet straight away.
+  const wantsInvest = searchParams.get('invest') === '1'
+  useEffect(() => {
+    if (!wantsInvest || !plan) return
+    if (plan.status === 'eligible') setSheet('invest')
+    setSearchParams({}, { replace: true }) // remove ?invest=1 so a refresh doesn't reopen it
+  }, [wantsInvest, plan, setSearchParams])
 
   async function selectFund() {
     setSelecting(true)

@@ -26,4 +26,7 @@ export const config = {
     .filter(Boolean),
   demoOtp: process.env.DEMO_OTP ?? '123456',
   navCacheMs: Number(process.env.NAV_CACHE_HOURS ?? 6) * 60 * 60 * 1000,
+  /** Optional: without a key, fund suggestions use the built-in template explanation. */
+  groqApiKey: process.env.GROQ_API_KEY || null,
+  groqModel: process.env.GROQ_MODEL || 'openai/gpt-oss-20b',
 }

@@ -32,5 +32,20 @@ export const FUND_CATEGORY_RISK: Record<FundCategory, string> = {
   small: 'Higher risk',
 }
 
+// Risk questionnaire answers (used by the fund suggestion feature).
+/** How long until you might need this money? */
+export const RISK_HORIZONS = ['lt1y', '1to3y', 'gt3y'] as const
+export type RiskHorizon = (typeof RISK_HORIZONS)[number]
+/** If your investment fell 20% in a month, what would you do? */
+export const DROP_REACTIONS = ['sell', 'wait', 'buyMore'] as const
+export type DropReaction = (typeof DROP_REACTIONS)[number]
+/** How regular is your income or pocket money? */
+export const INCOME_TYPES = ['steady', 'irregular'] as const
+export type IncomeType = (typeof INCOME_TYPES)[number]
+
+/** Every fund suggestion explanation ends with exactly this sentence. */
+export const ADVISOR_DISCLAIMER =
+  'Educational only, not financial advice. Past performance does not decide future returns.'
+
 export const MERCHANT_CATEGORIES = ['food', 'grocery', 'transport', 'shopping', 'health', 'other'] as const
 export type MerchantCategory = (typeof MERCHANT_CATEGORIES)[number]

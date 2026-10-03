@@ -8,7 +8,7 @@
     "build": "pnpm --filter ./client build",
     "start": "pnpm --filter ./server start",
     "seed": "pnpm --filter ./server seed",
-    "test": "pnpm --filter ./shared test",
+    "test": "pnpm --filter ./shared --filter ./server test",
     "typecheck": "pnpm -r typecheck",
     "format": "pnpm -r format"
   }
