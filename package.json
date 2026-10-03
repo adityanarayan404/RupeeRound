@@ -1,0 +1,15 @@
+{
+  "name": "rupeeround",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.34.3",
+  "scripts": {
+    "dev": "pnpm --parallel --filter ./client --filter ./server dev",
+    "build": "pnpm --filter ./client build",
+    "start": "pnpm --filter ./server start",
+    "seed": "pnpm --filter ./server seed",
+    "test": "pnpm --filter ./shared test",
+    "typecheck": "pnpm -r typecheck",
+    "format": "pnpm -r format"
+  }
+}
