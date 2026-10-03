@@ -1,102 +1,129 @@
-import { formatPaise, type GoalsResponse, type PortfolioDTO, type TransactionDTO, type WalletDTO } from '@rupeeround/shared'
 import {
-  ArrowRight,
-  ChevronRight,
-  History as HistoryIcon,
-  IndianRupee,
-  Moon,
-  Sun,
-  Target,
-  TrendingUp,
-  Wallet,
-  type LucideIcon,
-} from 'lucide-react'
+  calculateRoundUp,
+  formatPaise,
+  type PortfolioDTO,
+  type TransactionDTO,
+  type WalletDTO,
+} from '@rupeeround/shared'
+import { ArrowRight, Bot, ChartColumnBig, ChevronRight, IndianRupee, Moon, QrCode, Sun } from 'lucide-react'
 import { Link } from 'react-router'
+import Card from '@/components/Card'
 import ProgressBar from '@/components/ProgressBar'
-import ProgressRing from '@/components/ProgressRing'
+import Reveal from '@/components/Reveal'
 import Skeleton, { SkeletonRows } from '@/components/Skeleton'
 import StateMessage, { ErrorMessage } from '@/components/StateMessage'
 import TransactionRow from '@/components/TransactionRow'
 import { useUser } from '@/context/AuthContext'
 import { useTheme } from '@/context/ThemeContext'
 import { cn } from '@/lib/cn'
-import { firstName, formatPercent, greeting, initials } from '@/lib/format'
+import { dayKey, firstName, formatNav, formatPct, formatRupees2, greeting, initials, todayLabel } from '@/lib/format'
 import { useApi } from '@/lib/useApi'
 
-function WalletCard({ wallet }: { wallet: WalletDTO }) {
+/** Today's round-ups, the fund you're saving towards, and progress to its minimum. */
+function SpareChangeCard({ wallet, today }: { wallet: WalletDTO; today: TransactionDTO[] }) {
   const { plan, selectedFund } = wallet
+  const todayPaise = today.reduce((sum, transaction) => sum + transaction.roundUpPaise, 0)
+  const dayChange = selectedFund?.returns.day ?? null
 
   return (
-    <div className="relative overflow-hidden rounded-[28px] bg-linear-to-br from-(--wallet-from) to-(--wallet-to) p-5 text-[#FBF8F1] shadow-xl shadow-[#56443E]/25">
-      <div aria-hidden className="absolute -top-16 -right-12 size-48 rounded-full bg-white/10" />
-      <div aria-hidden className="absolute -right-6 -bottom-20 size-40 rounded-full bg-white/5" />
+    <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-linear-to-br from-(--wallet-from) to-(--wallet-to) p-6 text-white shadow-2xl shadow-black/50">
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-[radial-gradient(120%_80%_at_100%_0%,rgba(255,255,255,0.12),transparent_55%)]"
+      />
       <div className="relative">
-        <div className="flex items-center gap-2 text-sm font-semibold text-[#FBF8F1]/85">
-          <Wallet className="size-4" /> Round-up wallet
-        </div>
-        <p className="mt-1 text-[42px] leading-tight font-extrabold tracking-tight tabular-nums">
-          {formatPaise(wallet.balancePaise)}
+        <span className="text-[11px] font-medium tracking-[0.16em] whitespace-nowrap text-white/60 uppercase">
+          Today's spare change
+        </span>
+        <p className="mt-3 text-[31px] leading-none font-light tracking-[-0.035em] tabular-nums">{formatRupees2(todayPaise)}</p>
+        <p className="mt-2 text-[13px] text-white/55">
+          {today.length === 0
+            ? 'No payments yet today'
+            : `From ${today.length} payment${today.length === 1 ? '' : 's'} today`}
         </p>
 
-        {selectedFund && plan ? (
-          plan.status === 'eligible' ? (
-            <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-white/15 p-3">
-              <p className="text-sm font-semibold">Ready to invest in {selectedFund.shortName}</p>
-              <Link
-                to={`/invest/${selectedFund.id}`}
-                className="shrink-0 rounded-xl bg-[#FBF8F1] px-3 py-2 text-sm font-bold text-[#56443E]"
-              >
-                Invest now
+        <div className="mt-5 border-t border-white/10 pt-4">
+          {selectedFund ? (
+            <>
+              <Link to={`/funds/${selectedFund.id}`} className="flex items-center justify-between gap-3">
+                <span className="text-[13px] text-white/60">Saving towards</span>
+                <span className="flex min-w-0 items-center gap-1 text-sm font-semibold">
+                  <span className="truncate">{selectedFund.shortName}</span>
+                  <ChevronRight className="size-4 shrink-0 text-white/50" />
+                </span>
               </Link>
-            </div>
-          ) : (
-            <div className="mt-3">
-              <ProgressBar value={plan.progress} className="h-2.5 bg-white/20" barClassName="bg-[#F1F0E2]" />
-              <p className="mt-2 text-sm text-[#FBF8F1]/90">
-                <span className="font-bold">{formatPaise(plan.shortfallPaise)}</span> more to reach the{' '}
-                {formatPaise(selectedFund.minInvestmentPaise)} minimum for {selectedFund.shortName}. Your balance
-                carries forward.
+              <p className="mt-1 font-mono text-[11px] text-white/50">
+                Live NAV {formatNav(selectedFund.nav)}
+                {dayChange !== null && (
+                  <span className={dayChange >= 0 ? 'text-gain' : 'text-loss'}> {formatPct(dayChange)} today</span>
+                )}
               </p>
-            </div>
-          )
-        ) : (
-          <Link to="/invest" className="mt-3 inline-flex items-center gap-1 text-sm font-bold underline-offset-2 hover:underline">
-            Pick a fund to start investing <ArrowRight className="size-4" />
-          </Link>
-        )}
+              {plan && (
+                <div className="mt-4">
+                  <div className="flex items-baseline justify-between text-[13px]">
+                    <span className="text-white/60">Round-up wallet</span>
+                    <span className="font-medium tabular-nums">{formatPaise(wallet.balancePaise)}</span>
+                  </div>
+                  <ProgressBar value={plan.progress} className="mt-2 h-1.5 bg-white/15" barClassName="bg-white" />
+                  <p className="mt-2 text-[12px] text-white/55">
+                    {plan.status === 'eligible'
+                      ? 'Your wallet covers the demo minimum. Ready to invest.'
+                      : `${formatPaise(plan.shortfallPaise)} more to reach the ${formatPaise(selectedFund.minInvestmentPaise)} minimum. Your balance carries forward.`}
+                  </p>
+                </div>
+              )}
+            </>
+          ) : (
+            <Link to="/funds" className="flex items-center justify-between text-sm font-semibold">
+              Pick a fund to save towards <ArrowRight className="size-4" />
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   )
 }
 
-function HubTile({ to, icon: Icon, title, caption, primary }: { to: string; icon: LucideIcon; title: string; caption: string; primary?: boolean }) {
+function ScanPayCard({ multiple }: { multiple: number }) {
+  const example = calculateRoundUp(34_00, multiple)
   return (
     <Link
-      to={to}
-      className={cn(
-        'flex flex-col gap-3 rounded-3xl border p-4 transition-all active:scale-[0.98]',
-        primary ? 'border-transparent bg-primary text-on-primary shadow-lg shadow-primary/25' : 'border-line bg-card hover:border-line-strong',
-      )}
+      to="/pay?scan=1"
+      className="flex items-center gap-4 rounded-[28px] bg-primary p-5 text-on-primary transition-transform active:scale-[0.99]"
     >
-      <span className={cn('grid size-10 place-items-center rounded-2xl', primary ? 'bg-white/20' : 'bg-subtle text-accent')}>
-        <Icon className="size-5" />
-      </span>
-      <span>
-        <span className="block font-bold">{title}</span>
-        <span className={cn('block text-xs', primary ? 'text-on-primary/80' : 'text-muted')}>{caption}</span>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-on-primary/10 px-2 py-0.5 text-[10px] font-semibold tracking-[0.14em] uppercase">
+            Scan at shop
+          </span>
+          <span className="text-[11px] text-on-primary/60">Simulated UPI</span>
+        </div>
+        <p className="mt-2 text-lg font-semibold tracking-tight">Scan &amp; pay with round-up</p>
+        <p className="mt-0.5 text-[13px] text-on-primary/70">
+          Pay ₹34 → rounds to {formatPaise(example.roundedPaise)} → {formatPaise(example.roundUpPaise)} saved
+        </p>
+      </div>
+      <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-on-primary text-primary">
+        <QrCode className="size-7" />
       </span>
     </Link>
   )
 }
 
-function Stat({ label, value, tone, title }: { label: string; value: string; tone?: 'gain' | 'loss'; title?: string }) {
+function Tile({ to, icon: Icon, title, caption }: { to: string; icon: typeof Bot; title: string; caption: string }) {
   return (
-    <div title={title} className="min-w-0 rounded-2xl border border-line bg-card px-3 py-2.5">
-      <p className="truncate text-[11px] font-semibold text-muted">{label}</p>
-      <p className={cn('truncate font-extrabold tabular-nums', tone === 'gain' && 'text-gain', tone === 'loss' && 'text-loss')}>
-        {value}
-      </p>
-    </div>
+    <Link
+      to={to}
+      className="flex flex-col gap-3 rounded-3xl border border-line bg-card p-4 transition-colors hover:border-line-strong"
+    >
+      <span className="grid size-10 place-items-center rounded-2xl bg-subtle text-accent">
+        <Icon className="size-5" />
+      </span>
+      <span>
+        <span className="block font-semibold">{title}</span>
+        <span className="block text-xs text-muted">{caption}</span>
+      </span>
+    </Link>
   )
 }
 
@@ -104,93 +131,100 @@ export default function Home() {
   const user = useUser()
   const { theme, toggleTheme } = useTheme()
   const wallet = useApi<WalletDTO>('/wallet')
-  const transactions = useApi<TransactionDTO[]>('/transactions?limit=5')
+  const transactions = useApi<TransactionDTO[]>('/transactions?limit=50')
   const portfolio = useApi<PortfolioDTO>('/portfolio')
-  const goals = useApi<GoalsResponse>('/goals')
 
-  const nextGoal =
-    goals.data?.goals.find((goal) => goal.savedPaise < goal.targetPaise) ?? goals.data?.goals[0] ?? null
+  const todayKey = dayKey(new Date().toISOString())
+  const today = (transactions.data ?? []).filter((transaction) => dayKey(transaction.createdAt) === todayKey)
+  const recent = (transactions.data ?? []).slice(0, 5)
 
   return (
     <div className="px-5">
-      <header className="pt-safe flex items-center gap-3 pb-4">
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-muted">{greeting()},</p>
-          <h1 className="truncate text-2xl font-extrabold tracking-tight">{firstName(user.name)}</h1>
+      <header className="pt-safe flex items-start gap-3 pb-4">
+        <div className="animate-rise min-w-0 flex-1">
+          <p className="eyebrow">{todayLabel()}</p>
+          <h1 className="font-display mt-1 text-[25px] text-balance">
+            {greeting()}, {firstName(user.name)}
+          </h1>
         </div>
         <button
           type="button"
           onClick={toggleTheme}
           aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="grid size-11 place-items-center rounded-full border border-line bg-card text-muted hover:text-ink"
+          className="grid size-10 shrink-0 place-items-center rounded-full border border-line bg-card text-muted hover:text-ink"
         >
-          {theme === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
+          {theme === 'dark' ? <Sun className="size-[18px]" /> : <Moon className="size-[18px]" />}
         </button>
         <Link
-          to="/profile"
-          aria-label="Profile"
-          className="grid size-11 place-items-center rounded-full bg-tan font-extrabold text-primary-strong dark:text-ink"
+          to="/settings"
+          aria-label="Settings"
+          className="grid size-10 shrink-0 place-items-center rounded-full border border-line bg-subtle text-sm font-semibold"
         >
           {initials(user.name)}
         </Link>
       </header>
 
-      {wallet.loading ? (
-        <Skeleton className="h-48 rounded-[28px]" />
-      ) : wallet.error || !wallet.data ? (
-        <ErrorMessage message={wallet.error?.message ?? 'No wallet data'} onRetry={wallet.reload} />
-      ) : (
-        <WalletCard wallet={wallet.data} />
-      )}
+      <Reveal>
+        {wallet.loading || transactions.loading ? (
+          <Skeleton className="h-72 rounded-[28px]" />
+        ) : wallet.error || !wallet.data ? (
+          <ErrorMessage message={wallet.error?.message ?? 'No wallet data'} onRetry={wallet.reload} />
+        ) : (
+          <SpareChangeCard wallet={wallet.data} today={today} />
+        )}
+      </Reveal>
 
-      <div className="mt-3 grid grid-cols-3 gap-2">
+      <Reveal delay={60} className="mt-3">
+        <ScanPayCard multiple={user.defaultMultiple} />
+      </Reveal>
+
+      <Reveal delay={120} className="mt-3 grid grid-cols-2 gap-3">
         {wallet.data && portfolio.data ? (
           <>
-            <Stat label="Round-ups" value={formatPaise(wallet.data.totalRoundUpsPaise)} />
-            <Stat label="Invested" value={formatPaise(wallet.data.totalInvestedPaise)} />
-            <Stat
-              label="Portfolio"
-              value={formatPaise(portfolio.data.currentValuePaise)}
-              title={portfolio.data.investedPaise ? `${formatPercent(portfolio.data.gainPct, true)} overall` : undefined}
-              tone={portfolio.data.investedPaise ? (portfolio.data.gainPaise >= 0 ? 'gain' : 'loss') : undefined}
-            />
+            <Card>
+              <p className="text-[12px] text-muted">Total invested</p>
+              <p className="mt-1 text-[18px] font-light tracking-tight tabular-nums">{formatRupees2(portfolio.data.investedPaise)}</p>
+              <p className="mt-1 text-[11px] text-muted">
+                {portfolio.data.investments.length} investment{portfolio.data.investments.length === 1 ? '' : 's'} ·{' '}
+                {formatPaise(wallet.data.totalRoundUpsPaise)} rounded up
+              </p>
+            </Card>
+            <Card>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[12px] text-muted">Current value</p>
+                {portfolio.data.investedPaise > 0 && (
+                  <span
+                    className={cn(
+                      'rounded-full px-1.5 py-0.5 font-mono text-[10px] font-semibold',
+                      portfolio.data.gainPaise >= 0 ? 'bg-gain/15 text-gain' : 'bg-loss/15 text-loss',
+                    )}
+                  >
+                    {formatPct(portfolio.data.gainPct * 100)}
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-[18px] font-light tracking-tight tabular-nums">{formatRupees2(portfolio.data.currentValuePaise)}</p>
+              <p className={cn('mt-1 font-mono text-[11px]', portfolio.data.gainPaise >= 0 ? 'text-gain' : 'text-loss')}>
+                {portfolio.data.gainPaise >= 0 ? '+' : '−'}
+                {formatRupees2(Math.abs(portfolio.data.gainPaise))} {portfolio.data.gainPaise >= 0 ? 'profit' : 'loss'}
+              </p>
+            </Card>
           </>
         ) : (
-          [0, 1, 2].map((index) => <Skeleton key={index} className="h-[58px] rounded-2xl" />)
+          [0, 1].map((index) => <Skeleton key={index} className="h-[112px] rounded-3xl" />)
         )}
-      </div>
+      </Reveal>
 
-      <div className="mt-5 grid grid-cols-2 gap-3">
-        <HubTile to="/pay" icon={IndianRupee} title="Pay & round up" caption="Simulated merchant payment" primary />
-        <HubTile to="/invest" icon={TrendingUp} title="Invest" caption="Large · Mid · Small Cap" />
-        <HubTile to="/goals" icon={Target} title="Goals" caption="Track what you're saving for" />
-        <HubTile to="/history" icon={HistoryIcon} title="History" caption="Every payment and round-up" />
-      </div>
+      <Reveal delay={160} className="mt-3 grid grid-cols-2 gap-3">
+        <Tile to="/advisor" icon={Bot} title="Ask the AI advisor" caption="Mutual fund questions" />
+        <Tile to="/funds" icon={ChartColumnBig} title="Compare funds" caption="Live NAV & returns" />
+      </Reveal>
 
-      {nextGoal && goals.data && (
-        <Link
-          to="/goals"
-          className="mt-5 flex items-center gap-4 rounded-3xl border border-line bg-card p-4 transition-colors hover:border-line-strong"
-        >
-          <ProgressRing value={goals.data.savedPaise / nextGoal.targetPaise} size={56} stroke={6} complete={goals.data.savedPaise >= nextGoal.targetPaise}>
-            <span className="text-xl">{nextGoal.emoji}</span>
-          </ProgressRing>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold text-muted">Next goal</p>
-            <p className="truncate font-bold">{nextGoal.title}</p>
-            <p className="text-sm text-muted tabular-nums">
-              {formatPaise(Math.min(goals.data.savedPaise, nextGoal.targetPaise))} / {formatPaise(nextGoal.targetPaise)}
-            </p>
-          </div>
-          <ChevronRight className="size-5 text-muted" />
-        </Link>
-      )}
-
-      <section className="mt-6">
+      <Reveal className="mt-8">
         <div className="mb-1 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Recent round-ups</h2>
-          <Link to="/history" className="text-sm font-bold text-primary hover:underline">
-            See all
+          <h2 className="eyebrow">Recent activity</h2>
+          <Link to="/transactions" className="flex items-center gap-1 text-sm font-semibold hover:underline">
+            See all <ArrowRight className="size-3.5" />
           </Link>
         </div>
         {transactions.loading ? (
@@ -199,20 +233,20 @@ export default function Home() {
           </div>
         ) : transactions.error ? (
           <ErrorMessage message={transactions.error.message} onRetry={transactions.reload} />
-        ) : transactions.data?.length ? (
+        ) : recent.length ? (
           <ul className="divide-y divide-line">
-            {transactions.data.map((transaction) => (
-              <TransactionRow key={transaction.id} transaction={transaction} showDay />
+            {recent.map((transaction) => (
+              <TransactionRow key={transaction.id} transaction={transaction} />
             ))}
           </ul>
         ) : (
           <StateMessage
             icon={IndianRupee}
             title="No payments yet"
-            description="Tap Pay to make your first simulated payment and watch the round-up land."
+            description="Tap Scan to make your first simulated payment and watch the round-up land."
           />
         )}
-      </section>
+      </Reveal>
     </div>
   )
 }

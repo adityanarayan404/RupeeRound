@@ -36,7 +36,7 @@ export default function EnterPin() {
       title="Welcome back"
       description={
         <>
-          Enter the PIN for <span className="font-bold text-ink">{formatPhone(phone)}</span>
+          Enter the PIN for <span className="font-semibold text-ink">{formatPhone(phone)}</span>
         </>
       }
     >

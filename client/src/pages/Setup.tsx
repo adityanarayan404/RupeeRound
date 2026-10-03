@@ -56,15 +56,15 @@ export default function Setup() {
     <Screen>
       <div className="pt-safe animate-rise px-5 pb-36">
         <p className="mt-4 text-sm font-semibold text-accent">Hi {firstName(user.name)} 👋</p>
-        <h1 className="mt-1 text-3xl font-extrabold tracking-tight">Set up your round-ups</h1>
+        <h1 className="font-display mt-1 text-[31px]">Set up your round-ups</h1>
         <p className="mt-2 text-muted">You can change both of these later from your profile.</p>
 
         <section className="mt-8">
-          <h2 className="mb-3 text-lg font-bold">1. Pick your round-up step</h2>
+          <h2 className="eyebrow mb-3">1. Pick your round-up step</h2>
           <MultipleChips value={multiple} onChange={setMultiple} />
           <div className="mt-3 flex items-center justify-between rounded-2xl bg-subtle/70 px-4 py-3 text-sm">
             <span className="text-muted">A ₹32 payment becomes</span>
-            <span className="flex items-center gap-2 font-bold">
+            <span className="flex items-center gap-2 font-semibold">
               {formatPaise(example.roundedPaise)}
               <ArrowRight className="size-4 text-muted" />
               <span className="text-gain">+{formatPaise(example.roundUpPaise)} saved</span>
@@ -73,7 +73,7 @@ export default function Setup() {
         </section>
 
         <section className="mt-8">
-          <h2 className="text-lg font-bold">2. Choose a fund to save towards</h2>
+          <h2 className="eyebrow">2. Choose a fund to save towards</h2>
           <p className="mb-3 text-sm text-muted">
             Your wallet invests here once it reaches the fund minimum. Minimums are demo values.
           </p>

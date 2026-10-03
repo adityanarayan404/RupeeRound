@@ -20,9 +20,9 @@ export default function MultipleChips({ value, onChange, label = 'Round up to th
             aria-pressed={value === multiple}
             onClick={() => onChange(multiple)}
             className={cn(
-              'h-11 rounded-2xl border text-sm font-bold transition-all',
+              'h-11 rounded-2xl border text-sm font-semibold transition-all',
               value === multiple
-                ? 'border-primary bg-primary text-on-primary shadow-md shadow-primary/25'
+                ? 'border-primary bg-primary text-on-primary shadow-md shadow-black/20'
                 : 'border-line bg-card text-ink hover:bg-subtle',
             )}
           >

@@ -6,6 +6,7 @@ import { config } from './config.ts'
 import { requireAuth } from './middleware/auth.ts'
 import { errorHandler, notFound } from './middleware/errors.ts'
 import { advisorRouter } from './routes/advisor.ts'
+import { assistantRouter } from './routes/assistant.ts'
 import { authRouter } from './routes/auth.ts'
 import { fundsRouter } from './routes/funds.ts'
 import { goalsRouter } from './routes/goals.ts'
@@ -41,12 +42,18 @@ export function createApp(): express.Express {
   app.use('/api/investments', requireAuth, investmentsRouter)
   app.use('/api/portfolio', requireAuth, portfolioRouter)
   app.use('/api/goals', requireAuth, goalsRouter)
-  // Limited because each suggestion may call the Groq API.
+  app.use('/api/advisor', requireAuth, advisorRouter) // its own rate limit is in routes/advisor.ts
   app.use(
-    '/api/advisor',
+    '/api/assistant',
     requireAuth,
-    rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: 'draft-8', legacyHeaders: false }),
-    advisorRouter,
+    rateLimit({
+      windowMs: 15 * 60 * 1000,
+      limit: 60,
+      standardHeaders: 'draft-8',
+      legacyHeaders: false,
+      message: { error: { code: 'rate_limited', message: 'Too many questions. Please wait a few minutes.' } },
+    }),
+    assistantRouter,
   )
 
   app.use('/api', notFound)

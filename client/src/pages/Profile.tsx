@@ -17,6 +17,7 @@ import Button from '@/components/Button'
 import Card from '@/components/Card'
 import MultipleChips from '@/components/MultipleChips'
 import PinPad from '@/components/PinPad'
+import Reveal from '@/components/Reveal'
 import RiskSheet, { describeRiskProfile } from '@/components/RiskSheet'
 import ScreenHeader from '@/components/ScreenHeader'
 import Sheet from '@/components/Sheet'
@@ -76,8 +77,8 @@ function MultipleSheet({ open, onClose }: { open: boolean; onClose: () => void }
     <Sheet open={open} onClose={onClose} title="Default round-up">
       <MultipleChips value={multiple} onChange={setMultiple} />
       <p className="mt-3 rounded-2xl bg-subtle/70 px-4 py-3 text-sm text-muted">
-        A ₹32 payment becomes <span className="font-bold text-ink">{formatPaise(example.roundedPaise)}</span>, saving{' '}
-        <span className="font-bold text-gain">{formatPaise(example.roundUpPaise)}</span>.
+        A ₹32 payment becomes <span className="font-semibold text-ink">{formatPaise(example.roundedPaise)}</span>, saving{' '}
+        <span className="font-semibold text-gain">{formatPaise(example.roundUpPaise)}</span>.
       </p>
       <Button className="mt-5" size="lg" fullWidth loading={busy} onClick={save}>
         Save
@@ -177,26 +178,26 @@ export default function Profile() {
 
   return (
     <>
-      <ScreenHeader title="Profile" />
+      <ScreenHeader title="Settings" />
       <div className="space-y-4 px-5">
-        <Card className="flex items-center gap-4 p-5">
-          <span className="grid size-16 shrink-0 place-items-center rounded-full bg-tan text-2xl font-extrabold text-primary-strong dark:text-ink">
+        <Reveal><Card className="flex items-center gap-4 p-5">
+          <span className="grid size-16 shrink-0 place-items-center rounded-full bg-subtle border border-line text-2xl font-semibold text-ink">
             {initials(user.name)}
           </span>
           <div className="min-w-0">
-            <p className="truncate text-lg font-extrabold">{user.name}</p>
+            <p className="truncate text-lg font-semibold">{user.name}</p>
             <p className="text-sm text-muted">{formatPhone(user.phone)}</p>
             <p className="text-xs text-muted">Member since {formatLongDate(user.createdAt)}</p>
           </div>
-        </Card>
+        </Card></Reveal>
 
-        <Card className="divide-y divide-line py-1">
+        <Reveal delay={60}><Card className="divide-y divide-line py-1">
           <Row icon={Repeat} label="Default round-up" value={`Next ₹${user.defaultMultiple}`} onClick={() => setSheet('multiple')} />
           <Row
             icon={TrendingUp}
             label="Saving towards"
             value={fund ? fund.shortName : 'No fund chosen'}
-            onClick={() => navigate(fund ? `/invest/${fund.id}` : '/invest')}
+            onClick={() => navigate(fund ? `/funds/${fund.id}` : '/funds')}
           />
           <Row icon={ListChecks} label="Risk answers" value={describeRiskProfile(user)} onClick={() => setSheet('risk')} />
           <Row
@@ -213,7 +214,7 @@ export default function Profile() {
               onClick={installable ? () => void promptInstall() : undefined}
             />
           )}
-        </Card>
+        </Card></Reveal>
 
         <Button variant="danger" size="lg" fullWidth icon={<LogOut className="size-5" />} onClick={() => setSheet('logout')}>
           Log out

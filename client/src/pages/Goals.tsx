@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
 import ProgressRing from '@/components/ProgressRing'
+import Reveal from '@/components/Reveal'
 import ScreenHeader from '@/components/ScreenHeader'
 import Sheet from '@/components/Sheet'
 import Skeleton from '@/components/Skeleton'
@@ -28,14 +29,14 @@ function GoalCard({ goal, onDelete }: { goal: GoalDTO; onDelete: () => void }) {
         <span className="text-2xl">{goal.emoji}</span>
       </ProgressRing>
       <div className="min-w-0 flex-1">
-        <p className="truncate font-bold">{goal.title}</p>
+        <p className="truncate font-semibold">{goal.title}</p>
         <p className="text-sm tabular-nums">
-          <span className="font-bold">{formatPaise(Math.min(goal.savedPaise, goal.targetPaise))}</span>
+          <span className="font-semibold">{formatPaise(Math.min(goal.savedPaise, goal.targetPaise))}</span>
           <span className="text-muted"> / {formatPaise(goal.targetPaise)}</span>
         </p>
         <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
           {complete ? (
-            <span className="rounded-full bg-gain/15 px-2 py-0.5 font-bold text-gain">Reached 🎉</span>
+            <span className="rounded-full bg-gain/15 px-2 py-0.5 font-semibold text-gain">Reached 🎉</span>
           ) : (
             <span className="whitespace-nowrap">{Math.round(progress * 1000) / 10}% complete</span>
           )}
@@ -105,7 +106,7 @@ function NewGoalSheet({ open, onClose }: { open: boolean; onClose: () => void })
                 onClick={() => setEmoji(option)}
                 className={cn(
                   'grid h-12 place-items-center rounded-2xl border text-2xl transition-all',
-                  emoji === option ? 'border-primary bg-tan/50 ring-2 ring-primary/20' : 'border-line bg-card',
+                  emoji === option ? 'border-primary bg-subtle ring-2 ring-ink/10' : 'border-line bg-card',
                 )}
               >
                 {option}
@@ -162,6 +163,7 @@ export default function Goals() {
     <>
       <ScreenHeader
         title="Goals"
+        back="/"
         subtitle="What your round-ups are for"
         right={
           <Button size="sm" icon={<Plus className="size-4" />} onClick={() => setCreating(true)}>
@@ -181,11 +183,13 @@ export default function Goals() {
           <ErrorMessage message={goals.error?.message ?? 'No goals data'} onRetry={goals.reload} />
         ) : (
           <>
-            <div className="rounded-3xl bg-linear-to-br from-(--wallet-from) to-(--wallet-to) p-5 text-[#FBF8F1]">
-              <p className="text-sm font-semibold text-[#FBF8F1]/85">Total saved</p>
-              <p className="text-3xl font-extrabold tracking-tight tabular-nums">{formatPaise(goals.data.savedPaise)}</p>
-              <p className="text-sm text-[#FBF8F1]/80">Wallet + invested. Every goal tracks this total.</p>
-            </div>
+            <Reveal className="rounded-3xl border border-white/10 bg-linear-to-br from-(--wallet-from) to-(--wallet-to) p-6 text-white shadow-2xl shadow-black/40">
+              <p className="text-[11px] font-medium tracking-[0.16em] text-white/60 uppercase">Total saved</p>
+              <p className="mt-3 text-[27px] leading-none font-light tracking-[-0.03em] tabular-nums">
+                {formatPaise(goals.data.savedPaise)}
+              </p>
+              <p className="mt-3 text-[13px] text-white/60">Wallet + invested. Every goal tracks this total.</p>
+            </Reveal>
 
             {goals.data.goals.length === 0 ? (
               <StateMessage
@@ -195,7 +199,11 @@ export default function Goals() {
                 action={<Button onClick={() => setCreating(true)}>Add your first goal</Button>}
               />
             ) : (
-              goals.data.goals.map((goal) => <GoalCard key={goal.id} goal={goal} onDelete={() => setConfirmDelete(goal)} />)
+              goals.data.goals.map((goal, index) => (
+                <Reveal key={goal.id} delay={index * 70}>
+                  <GoalCard goal={goal} onDelete={() => setConfirmDelete(goal)} />
+                </Reveal>
+              ))
             )}
           </>
         )}

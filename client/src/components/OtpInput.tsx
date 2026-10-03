@@ -33,7 +33,7 @@ export default function OtpInput({ value, onChange, length = 6, error, disabled 
             <span
               key={index}
               className={cn(
-                'grid h-14 flex-1 place-items-center rounded-2xl border-2 bg-card text-2xl font-bold transition-colors',
+                'grid h-14 flex-1 place-items-center rounded-2xl border-2 bg-card text-2xl font-semibold transition-colors',
                 error ? 'border-loss text-loss' : 'border-line',
                 !error && active && 'peer-focus:border-accent',
               )}

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useOverlayRoot } from '@/context/OverlayContext'
 
-const COLORS = ['#A47864', '#C39D88', '#E4C7B8', '#8B645A', '#BAAA91', '#4F7D52', '#F1F0E2']
+const COLORS = ['#FFFFFF', '#F4F1EC', '#D9D2C9', '#958C84', '#6F665E', '#A8D5B0']
 const DURATION_MS = 2600
 
 interface Particle {

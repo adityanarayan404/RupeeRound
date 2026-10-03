@@ -5,17 +5,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title><!-- figma:title --></title>
-    <meta name="theme-color" content="#F1F0E2" />
+    <meta name="theme-color" content="#0A0807" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="RupeeRound" />
     <script>
-      // Apply the saved theme before first paint so dark mode doesn't flash light.
+      // Apply the saved theme before first paint. Dark is the default look.
       try {
         var saved = localStorage.getItem('rr.theme')
-        var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches
+        var dark = saved ? saved === 'dark' : true
         if (dark) document.documentElement.classList.add('dark')
       } catch (e) {}
     </script>

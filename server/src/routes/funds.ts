@@ -9,7 +9,7 @@ import { objectIdField } from './schemas.ts'
 
 export const fundsRouter = Router()
 
-const RANGE_DAYS = { '1m': 31, '6m': 183, '1y': 366 } as const
+const RANGE_DAYS = { '1m': 31, '6m': 183, '1y': 366, '3y': 1096 } as const
 
 fundsRouter.get('/', async (_req, res) => {
   await refreshStaleFunds()
@@ -19,7 +19,7 @@ fundsRouter.get('/', async (_req, res) => {
 
 fundsRouter.get('/:id/nav-history', async (req, res) => {
   const { id } = parse(z.object({ id: objectIdField }), req.params)
-  const { range } = parse(z.object({ range: z.enum(['1m', '6m', '1y']).default('6m') }), req.query)
+  const { range } = parse(z.object({ range: z.enum(['1m', '6m', '1y', '3y']).default('6m') }), req.query)
 
   await refreshStaleFunds()
   const fund = await Fund.findById(id)

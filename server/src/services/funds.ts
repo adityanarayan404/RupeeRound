@@ -14,8 +14,9 @@ interface FundDefinition {
   fallbackNav: number
 }
 
-// Real index funds so the NAVs from mfapi.in are genuine.
-// Minimums are RupeeRound demo values, labelled as such in the app.
+// Real funds so the NAVs from mfapi.in are genuine.
+// Minimums are RupeeRound demo values, labelled as such in the app. (HDFC Small Cap's
+// ₹100 also matches its real minimum lump sum.)
 const FUND_DEFINITIONS: FundDefinition[] = [
   {
     schemeCode: 120716,
@@ -36,18 +37,43 @@ const FUND_DEFINITIONS: FundDefinition[] = [
     fallbackNav: 39.29,
   },
   {
-    schemeCode: 147623,
-    name: 'Motilal Oswal Nifty Smallcap 250 Index Fund - Direct Plan - Growth',
-    shortName: 'Motilal Oswal Smallcap 250',
-    fundHouse: 'Motilal Oswal Mutual Fund',
+    schemeCode: 130503,
+    name: 'HDFC Small Cap Fund - Direct Plan - Growth Option',
+    shortName: 'HDFC Small Cap',
+    fundHouse: 'HDFC Mutual Fund',
     category: 'small',
-    minInvestmentPaise: 1_000_00,
-    fallbackNav: 39.42,
+    minInvestmentPaise: 100_00,
+    fallbackNav: 155.01,
   },
 ]
 
+/**
+ * When a category's scheme changes (e.g. Small Cap: Motilal Oswal → HDFC), switch the
+ * existing fund record to the new scheme instead of adding a fourth fund. Its _id stays
+ * the same, so users "saving towards" it keep pointing at the right category; the old
+ * scheme's NAV history is cleared and re-fetched for the new one.
+ */
+async function migrateReplacedSchemes(): Promise<void> {
+  const codes = FUND_DEFINITIONS.map((definition) => definition.schemeCode)
+  for (const definition of FUND_DEFINITIONS) {
+    if (await Fund.exists({ schemeCode: definition.schemeCode })) continue
+    const replaced = await Fund.findOne({ category: definition.category, schemeCode: { $nin: codes } })
+    if (!replaced) continue
+    console.log(`Switching ${replaced.shortName} to ${definition.shortName}`)
+    replaced.schemeCode = definition.schemeCode
+    replaced.fundHouse = definition.fundHouse
+    replaced.latestNav = definition.fallbackNav
+    replaced.navDate = toIsoDate(new Date())
+    replaced.navFetchedAt = null
+    replaced.navHistory = []
+    replaced.historyDays = 0
+    await replaced.save()
+  }
+}
+
 /** Creates the three demo funds if they are missing and keeps their settings in sync. */
 export async function ensureFunds(): Promise<void> {
+  await migrateReplacedSchemes()
   await Promise.all(
     FUND_DEFINITIONS.map((definition, index) =>
       Fund.updateOne(
@@ -81,7 +107,8 @@ interface MfApiResponse {
 }
 
 const MFAPI_URL = 'https://api.mfapi.in/mf'
-const HISTORY_DAYS = 400
+/** A little over 3 years, so the 3-year return has a comparison point. */
+const HISTORY_DAYS = 1130
 /** After a failed fetch, wait this long before trying mfapi.in again. */
 const RETRY_AFTER_MS = 2 * 60 * 1000
 
@@ -93,20 +120,27 @@ function ddmmyyyyToIso(value: string): string {
   return `${year}-${month}-${day}`
 }
 
+/**
+ * Turns mfapi.in's NAV list (newest first, "dd-mm-yyyy" dates, NAVs as strings)
+ * into clean points, oldest first, covering the last `days` days.
+ */
+export function parseMfapiHistory(data: { date: string; nav: string }[], days: number = HISTORY_DAYS): NavPoint[] {
+  const cutoff = new Date()
+  cutoff.setDate(cutoff.getDate() - days)
+  const cutoffIso = toIsoDate(cutoff)
+  return data
+    .map((point) => ({ date: ddmmyyyyToIso(point.date), nav: Number(point.nav) }))
+    .filter((point) => Number.isFinite(point.nav) && point.nav > 0 && point.date >= cutoffIso)
+    .sort((a, b) => a.date.localeCompare(b.date))
+}
+
 async function refreshFundNav(fund: FundDocument): Promise<void> {
   const response = await fetch(`${MFAPI_URL}/${fund.schemeCode}`, { signal: AbortSignal.timeout(6000) })
   if (!response.ok) throw new Error(`mfapi.in responded ${response.status}`)
   const body = (await response.json()) as MfApiResponse
   if (body.status !== 'SUCCESS' || !body.data?.length) throw new Error('mfapi.in returned no NAV data')
 
-  const cutoff = new Date()
-  cutoff.setDate(cutoff.getDate() - HISTORY_DAYS)
-  const cutoffIso = toIsoDate(cutoff)
-
-  const history: NavPoint[] = body.data
-    .map((point) => ({ date: ddmmyyyyToIso(point.date), nav: Number(point.nav) }))
-    .filter((point) => Number.isFinite(point.nav) && point.nav > 0 && point.date >= cutoffIso)
-    .sort((a, b) => a.date.localeCompare(b.date))
+  const history = parseMfapiHistory(body.data)
 
   const latest = history[history.length - 1]
   if (!latest) throw new Error('mfapi.in returned no recent NAV')
@@ -115,6 +149,7 @@ async function refreshFundNav(fund: FundDocument): Promise<void> {
   fund.latestNav = latest.nav
   fund.navDate = latest.date
   fund.navFetchedAt = new Date()
+  fund.historyDays = HISTORY_DAYS
   if (body.meta?.fund_house) fund.fundHouse = body.meta.fund_house
   await fund.save()
 }
@@ -128,7 +163,10 @@ export function refreshStaleFunds(): Promise<void> {
     const funds = await Fund.find()
     const now = Date.now()
     const stale = funds.filter((fund) => {
-      const fresh = fund.navFetchedAt && now - fund.navFetchedAt.getTime() <= config.navCacheMs
+      const fresh =
+        fund.navFetchedAt &&
+        now - fund.navFetchedAt.getTime() <= config.navCacheMs &&
+        fund.historyDays === HISTORY_DAYS // older, shorter histories get re-fetched once
       const recentlyFailed = now - (lastFailureAt.get(fund.schemeCode) ?? 0) < RETRY_AFTER_MS
       return !fresh && !recentlyFailed
     })

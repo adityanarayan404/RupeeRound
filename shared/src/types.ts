@@ -1,7 +1,7 @@
 // Shapes of the JSON the API sends and receives. Shared by client and server.
 import type { DropReaction, FundCategory, IncomeType, MerchantCategory, RiskHorizon } from './constants.ts'
 import type { InvestmentPlan } from './invest.ts'
-import type { FundMetrics } from './metrics.ts'
+import type { FundMetrics, FundReturns } from './metrics.ts'
 
 export interface RiskProfile {
   horizon: RiskHorizon
@@ -56,6 +56,8 @@ export interface FundDTO {
   navSource: NavSource
   /** One-year NAV change as a fraction (0.12 = 12%), when history allows. */
   return1y: number | null
+  /** NAV changes in percent (today, 1M, 3M, 1Y, 3Y) from the stored mfapi.in history. */
+  returns: FundReturns
 }
 
 export interface NavPoint {
@@ -186,6 +188,26 @@ export interface FundSuggestionDTO {
 }
 
 export type AdvisorResponse = { needsProfile: true } | { needsProfile: false; suggestion: FundSuggestionDTO }
+
+export interface AssistantMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export interface AssistantRequest {
+  /** The conversation so far, oldest first; the last message is the user's new question. */
+  messages: AssistantMessage[]
+}
+
+/** 'refused' = off-topic question; 'unavailable' = the AI couldn't be reached. */
+export type AssistantSource = 'ai' | 'refused' | 'unavailable'
+
+export interface AssistantResponse {
+  reply: string
+  source: AssistantSource
+  /** Funds the AI looked up live on mfapi.in while answering. */
+  usedFunds: { schemeCode: number; name: string }[]
+}
 
 export interface ApiErrorBody {
   error: {

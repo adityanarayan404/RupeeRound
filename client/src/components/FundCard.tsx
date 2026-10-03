@@ -26,21 +26,21 @@ export default function FundCard({ fund, balancePaise, selected, onClick, mode =
       aria-pressed={mode === 'select' ? selected : undefined}
       className={cn(
         'w-full rounded-3xl border bg-card p-4 text-left transition-all hover:border-line-strong active:scale-[0.99]',
-        selected ? 'border-primary ring-2 ring-primary/20' : 'border-line',
+        selected ? 'border-primary ring-2 ring-ink/10' : 'border-line',
       )}
     >
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex flex-wrap items-center gap-1.5">
-            <span className="rounded-full bg-tan/60 px-2 py-0.5 text-[11px] font-bold text-primary-strong dark:text-ink">
+            <span className="rounded-full bg-subtle border border-line px-2 py-0.5 text-[11px] font-semibold text-ink">
               {FUND_CATEGORY_LABELS[fund.category]}
             </span>
             <span className="text-[11px] font-medium text-muted">{FUND_CATEGORY_RISK[fund.category]}</span>
             {selected && mode === 'link' && (
-              <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-bold text-on-primary">Your fund</span>
+              <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-on-primary">Your fund</span>
             )}
           </div>
-          <p className="truncate font-bold">{fund.shortName}</p>
+          <p className="truncate font-semibold">{fund.shortName}</p>
           <p className="text-xs text-muted">{fund.fundHouse}</p>
         </div>
         {mode === 'select' ? (
@@ -60,13 +60,13 @@ export default function FundCard({ fund, balancePaise, selected, onClick, mode =
       <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
         <div>
           <p className="text-[11px] font-medium text-muted">NAV · {formatShortDate(fund.navDate)}</p>
-          <p className="font-bold tabular-nums">{formatNav(fund.nav)}</p>
+          <p className="font-semibold tabular-nums">{formatNav(fund.nav)}</p>
         </div>
         <div>
           <p className="text-[11px] font-medium text-muted">1Y return</p>
           <p
             className={cn(
-              'font-bold tabular-nums',
+              'font-semibold tabular-nums',
               fund.return1y === null ? 'text-muted' : fund.return1y >= 0 ? 'text-gain' : 'text-loss',
             )}
           >
@@ -75,7 +75,7 @@ export default function FundCard({ fund, balancePaise, selected, onClick, mode =
         </div>
         <div>
           <p className="text-[11px] font-medium text-muted">Min (demo)</p>
-          <p className="font-bold tabular-nums">{formatPaise(fund.minInvestmentPaise)}</p>
+          <p className="font-semibold tabular-nums">{formatPaise(fund.minInvestmentPaise)}</p>
         </div>
       </div>
 

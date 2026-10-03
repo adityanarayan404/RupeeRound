@@ -6,9 +6,21 @@ import { api, type ApiError } from './api'
 const cache = new Map<string, unknown>()
 const listeners = new Set<(prefixes: string[]) => void>()
 
-/** Refetch every mounted query whose path starts with one of the prefixes. */
+/**
+ * Marks data as out of date. Screens that are open refetch now (and keep showing
+ * their current data until the new data arrives). The cached copy is dropped, so a
+ * screen opened later loads fresh instead of briefly showing the old data.
+ */
 export function invalidate(...prefixes: string[]): void {
+  for (const key of [...cache.keys()]) {
+    if (prefixes.some((prefix) => key.startsWith(prefix))) cache.delete(key)
+  }
   listeners.forEach((listener) => listener(prefixes))
+}
+
+/** The last data fetched for a path, if any, without triggering a request. */
+export function peekCache<T>(path: string): T | undefined {
+  return cache.get(path) as T | undefined
 }
 
 export function clearApiCache(): void {

@@ -16,7 +16,7 @@ export default function StateMessage({ icon: Icon = CircleAlert, title, descript
       <span className="mb-3 grid size-14 place-items-center rounded-2xl bg-subtle text-accent">
         <Icon className="size-7" />
       </span>
-      <p className="font-bold">{title}</p>
+      <p className="font-semibold">{title}</p>
       {description && <p className="mt-1 text-sm text-muted">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>

@@ -12,10 +12,10 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 const THEME_KEY = 'rr.theme'
-const THEME_COLORS: Record<Theme, string> = { light: '#F1F0E2', dark: '#1E1714' }
+const THEME_COLORS: Record<Theme, string> = { light: '#FAFAF9', dark: '#0A0807' }
 
 export default function ThemeProvider({ children }: { children: ReactNode }) {
-  // index.html already applied the saved/system theme before React loaded.
+  // index.html already applied the saved theme (dark by default) before React loaded.
   const [theme, setThemeState] = useState<Theme>(() =>
     document.documentElement.classList.contains('dark') ? 'dark' : 'light',
   )
@@ -47,6 +47,6 @@ export function useTheme(): ThemeContextValue {
 export function useChartColors() {
   const { theme } = useTheme()
   return theme === 'dark'
-    ? { line: '#C39D88', fill: '#A47864', second: '#BAAA91', grid: '#3D302A', text: '#BAAA91', tooltipBg: '#2A211D' }
-    : { line: '#8B645A', fill: '#A47864', second: '#BAAA91', grid: '#E0D6C6', text: '#8B645A', tooltipBg: '#FBF8F1' }
+    ? { line: '#F4F1EC', fill: '#F4F1EC', second: '#6F665E', grid: '#262019', text: '#958C84', ink: '#F4F1EC', tooltipBg: '#14100E' }
+    : { line: '#0E0C0B', fill: '#0E0C0B', second: '#A39C95', grid: '#E6E2DD', text: '#6B645E', ink: '#0E0C0B', tooltipBg: '#FFFFFF' }
 }

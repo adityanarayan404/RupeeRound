@@ -9,18 +9,18 @@ import { ONBOARDED_KEY, storage } from '@/lib/storage'
 
 function PayArt() {
   return (
-    <div className="w-60 -rotate-3 rounded-[28px] border border-line bg-card p-5 shadow-xl shadow-primary/10">
+    <div className="w-60 -rotate-3 rounded-[28px] border border-line bg-card p-5 shadow-xl shadow-black/20">
       <div className="flex items-center gap-3">
         <span className="grid size-12 place-items-center rounded-2xl bg-subtle text-accent">
           <Utensils className="size-6" />
         </span>
         <div>
-          <p className="font-bold">College Canteen</p>
+          <p className="font-semibold">College Canteen</p>
           <p className="text-xs text-muted">Lunch · today</p>
         </div>
       </div>
       <p className="mt-6 text-xs font-semibold text-muted">Bill amount</p>
-      <p className="text-5xl font-extrabold tracking-tight">₹32</p>
+      <p className="text-5xl font-semibold tracking-tight">₹32</p>
     </div>
   )
 }
@@ -28,12 +28,12 @@ function PayArt() {
 function RoundUpArt() {
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="flex items-center gap-3 text-4xl font-extrabold">
+      <div className="flex items-center gap-3 text-4xl font-semibold">
         <span className="rounded-2xl bg-card px-4 py-3 text-muted line-through decoration-2">₹32</span>
         <ArrowRight className="size-7 text-accent" />
-        <span className="rounded-2xl bg-primary px-4 py-3 text-on-primary shadow-lg shadow-primary/30">₹35</span>
+        <span className="rounded-2xl bg-primary px-4 py-3 text-on-primary shadow-lg shadow-black/20">₹35</span>
       </div>
-      <div className="flex items-center gap-2 rounded-full border border-gain/30 bg-gain/10 px-4 py-2 font-bold text-gain">
+      <div className="flex items-center gap-2 rounded-full border border-gain/30 bg-gain/10 px-4 py-2 font-semibold text-gain">
         <PiggyBank className="size-5" />
         +₹3 to your round-up wallet
       </div>
@@ -46,13 +46,13 @@ function InvestArt() {
     <div className="flex flex-col items-center gap-5">
       <ProgressRing value={0.62} size={132} stroke={12}>
         <div className="text-center">
-          <p className="text-2xl font-extrabold">₹620</p>
+          <p className="text-2xl font-semibold">₹620</p>
           <p className="text-xs font-semibold text-muted">of ₹1,000</p>
         </div>
       </ProgressRing>
       <div className="flex gap-2">
         {['Large Cap', 'Mid Cap', 'Small Cap'].map((label) => (
-          <span key={label} className="rounded-full border border-line bg-card px-3 py-1.5 text-xs font-bold">
+          <span key={label} className="rounded-full border border-line bg-card px-3 py-1.5 text-xs font-semibold">
             {label}
           </span>
         ))}
@@ -123,7 +123,7 @@ export default function Onboarding() {
           >
             <div className="grid flex-1 place-items-center">{slide.art}</div>
             <div className="pb-4">
-              <h1 className="text-3xl font-extrabold tracking-tight">{slide.title}</h1>
+              <h1 className="font-display text-[31px]">{slide.title}</h1>
               <p className="mt-3 text-base leading-relaxed text-muted">{slide.body}</p>
             </div>
           </section>

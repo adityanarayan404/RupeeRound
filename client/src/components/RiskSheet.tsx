@@ -1,9 +1,16 @@
-import type { DropReaction, IncomeType, RiskHorizon, UserDTO } from '@rupeeround/shared'
+import {
+  FUND_CATEGORY_LABELS,
+  type AdvisorResponse,
+  type DropReaction,
+  type IncomeType,
+  type RiskHorizon,
+  type UserDTO,
+} from '@rupeeround/shared'
 import { useState } from 'react'
 import { useAuth, useUser } from '@/context/AuthContext'
 import { useToast } from '@/context/ToastContext'
 import { api, errorMessage } from '@/lib/api'
-import { invalidate } from '@/lib/useApi'
+import { invalidate, peekCache } from '@/lib/useApi'
 import Button from './Button'
 import ChoiceChips from './ChoiceChips'
 import Sheet from './Sheet'
@@ -49,13 +56,31 @@ export default function RiskSheet({ open, onClose }: { open: boolean; onClose: (
   async function save() {
     if (!horizon || !dropReaction || !income) return
     setBusy(true)
+    // Remember the category we showed before, so we can say whether it changed.
+    const before = peekCache<AdvisorResponse>('/advisor')
+    const previousCategory = before && !before.needsProfile ? before.suggestion.category : null
     try {
       const updated = await api<UserDTO>('/me/risk-profile', {
         method: 'PATCH',
         body: { horizon, dropReaction, income },
       })
       setUser(updated)
+      // Fresh suggestion for the new answers (also refreshes any open SuggestionCard).
       invalidate('/advisor')
+      const after = await api<AdvisorResponse>('/advisor').catch(() => null)
+      if (after && !after.needsProfile && after.suggestion.category === previousCategory) {
+        toast({
+          title: 'Suggestion updated',
+          description: `Your answers still point to ${FUND_CATEGORY_LABELS[after.suggestion.category]}`,
+          tone: 'info',
+        })
+      } else {
+        toast({
+          title: 'Suggestion updated',
+          description: after && !after.needsProfile ? `Now suggesting ${after.suggestion.fund.shortName}` : undefined,
+          tone: 'success',
+        })
+      }
       onClose()
     } catch (caught) {
       toast({ title: errorMessage(caught), tone: 'error' })

@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { fundMetrics } from './metrics.ts'
+import { fundMetrics, fundReturns, lastYearHistory, periodReturnPct } from './metrics.ts'
 import type { NavPoint } from './types.ts'
 
 /** Daily NAV points starting from `start`, one per calendar day. */
@@ -59,6 +59,30 @@ test('volatility is the standard deviation of daily % changes', () => {
   assert.equal(metrics.volatilityPct, 11.55)
   // A perfectly steady fund has zero volatility.
   assert.equal(fundMetrics(series('2026-01-01', [100, 101, 102.01])).volatilityPct, 0)
+})
+
+test('period returns: day, months and years, null when history is too short', () => {
+  const history: NavPoint[] = [
+    { date: '2023-10-02', nav: 50 }, // 3 years before
+    { date: '2025-10-01', nav: 80 }, // 1 year before
+    { date: '2026-07-02', nav: 90 }, // ~91 days before
+    { date: '2026-09-01', nav: 95 }, // 30 days before
+    { date: '2026-09-30', nav: 98 },
+    { date: '2026-10-01', nav: 100 },
+  ]
+  assert.deepEqual(fundReturns(history), { day: 2.04, month1: 5.26, month3: 11.11, year1: 25, year3: 100 })
+  assert.equal(periodReturnPct(history.slice(3), 365), null)
+  assert.deepEqual(fundReturns([]), { day: null, month1: null, month3: null, year1: null, year3: null })
+})
+
+test('lastYearHistory keeps about the last year of points', () => {
+  const history: NavPoint[] = [
+    { date: '2024-01-01', nav: 1 },
+    { date: '2025-09-20', nav: 2 },
+    { date: '2026-10-01', nav: 3 },
+  ]
+  assert.deepEqual(lastYearHistory(history).map((point) => point.date), ['2025-09-20', '2026-10-01'])
+  assert.deepEqual(lastYearHistory([]), [])
 })
 
 test('ignores broken NAV values', () => {

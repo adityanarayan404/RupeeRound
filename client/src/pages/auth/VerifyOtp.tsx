@@ -66,7 +66,7 @@ export default function VerifyOtp() {
       title="Verify your number"
       description={
         <>
-          Enter the 6-digit code sent to <span className="font-bold text-ink">{formatPhone(state.phone)}</span>
+          Enter the 6-digit code sent to <span className="font-semibold text-ink">{formatPhone(state.phone)}</span>
         </>
       }
       footer={
@@ -91,7 +91,7 @@ export default function VerifyOtp() {
         <div className="mt-6 flex items-start gap-3 rounded-2xl bg-subtle/70 p-4 text-sm">
           <MessageSquareText className="mt-0.5 size-5 shrink-0 text-accent" />
           <p className="text-muted">
-            Demo mode: no SMS is sent. Your code is <span className="font-extrabold tracking-widest text-ink">{demoOtp}</span>
+            Demo mode: no SMS is sent. Your code is <span className="font-semibold tracking-widest text-ink">{demoOtp}</span>
           </p>
         </div>
       )}
@@ -101,7 +101,7 @@ export default function VerifyOtp() {
         {secondsLeft > 0 ? (
           <span>Resend in {secondsLeft}s</span>
         ) : (
-          <button type="button" onClick={resend} className="font-bold text-primary hover:underline">
+          <button type="button" onClick={resend} className="font-semibold text-primary hover:underline">
             Resend code
           </button>
         )}

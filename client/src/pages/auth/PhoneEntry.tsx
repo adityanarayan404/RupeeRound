@@ -43,7 +43,7 @@ export default function PhoneEntry() {
       <form onSubmit={submit} className="pt-safe pb-safe flex min-h-full flex-col px-6">
         <div className="animate-rise mt-10 flex-1">
           <Logo size={64} />
-          <h1 className="mt-8 text-3xl font-extrabold tracking-tight">Enter your mobile number</h1>
+          <h1 className="font-display mt-8 text-[31px]">Enter your mobile number</h1>
           <p className="mt-2 text-muted">We'll use it to log you in. New here? We'll verify it with a one-time code.</p>
 
           <TextField
@@ -65,13 +65,13 @@ export default function PhoneEntry() {
           <div className="mt-6 rounded-2xl border border-dashed border-line-strong/60 bg-subtle/60 p-4 text-sm">
             <p className="font-semibold">Demo account</p>
             <p className="mt-0.5 text-muted">
-              Phone <span className="font-bold text-ink">98765 43210</span> · PIN{' '}
-              <span className="font-bold text-ink">1234</span>
+              Phone <span className="font-semibold text-ink">98765 43210</span> · PIN{' '}
+              <span className="font-semibold text-ink">1234</span>
             </p>
             <button
               type="button"
               onClick={() => setPhone('9876543210')}
-              className="mt-2 text-sm font-bold text-primary underline-offset-2 hover:underline"
+              className="mt-2 text-sm font-semibold text-primary underline-offset-2 hover:underline"
             >
               Use demo number
             </button>

@@ -22,6 +22,7 @@ import Card from '@/components/Card'
 import Confetti from '@/components/Confetti'
 import NavBadge from '@/components/NavBadge'
 import ProgressBar from '@/components/ProgressBar'
+import Reveal from '@/components/Reveal'
 import Screen from '@/components/Screen'
 import ScreenHeader from '@/components/ScreenHeader'
 import Sheet from '@/components/Sheet'
@@ -59,7 +60,7 @@ function NavChart({ fundId }: { fundId: string }) {
         <p className="text-sm font-semibold text-muted">
           NAV change{' '}
           {change !== null && (
-            <span className={cn('font-bold', change >= 0 ? 'text-gain' : 'text-loss')}>{formatPercent(change, true)}</span>
+            <span className={cn('font-semibold', change >= 0 ? 'text-gain' : 'text-loss')}>{formatPercent(change, true)}</span>
           )}
         </p>
         <div className="flex rounded-xl bg-subtle p-1" role="tablist" aria-label="Chart range">
@@ -71,7 +72,7 @@ function NavChart({ fundId }: { fundId: string }) {
               aria-selected={range === option.value}
               onClick={() => setRange(option.value)}
               className={cn(
-                'rounded-lg px-3 py-1 text-xs font-bold transition-colors',
+                'rounded-lg px-3 py-1 text-xs font-semibold transition-colors',
                 range === option.value ? 'bg-card text-ink shadow-sm' : 'text-muted',
               )}
             >
@@ -92,7 +93,7 @@ function NavChart({ fundId }: { fundId: string }) {
             <AreaChart data={points} margin={{ top: 8, right: 4, left: 4, bottom: 0 }}>
               <defs>
                 <linearGradient id="nav-fill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor={colors.fill} stopOpacity={0.35} />
+                  <stop offset="0" stopColor={colors.fill} stopOpacity={0.16} />
                   <stop offset="1" stopColor={colors.fill} stopOpacity={0} />
                 </linearGradient>
               </defs>
@@ -107,7 +108,7 @@ function NavChart({ fundId }: { fundId: string }) {
               <YAxis domain={['dataMin', 'dataMax']} hide />
               <Tooltip
                 cursor={{ stroke: colors.grid }}
-                contentStyle={{ background: colors.tooltipBg, border: `1px solid ${colors.grid}`, borderRadius: 12, fontSize: 12 }}
+                labelStyle={{ color: colors.text }} itemStyle={{ color: colors.ink }} contentStyle={{ background: colors.tooltipBg, border: `1px solid ${colors.grid}`, borderRadius: 12, fontSize: 12 }}
                 labelFormatter={(label) => formatShortDate(String(label))}
                 formatter={(value) => [formatNav(Number(value)), 'NAV']}
               />
@@ -164,7 +165,7 @@ function InvestSheet({ fund, wallet, open, onClose }: { fund: FundDTO; wallet: W
         <Confetti />
         <div className="flex flex-col items-center py-4 text-center">
           <SuccessCheck size={84} />
-          <p className="mt-5 text-2xl font-extrabold">Invested {formatPaise(done.investment.amountPaise)}</p>
+          <p className="mt-5 text-2xl font-semibold">Invested {formatPaise(done.investment.amountPaise)}</p>
           <p className="mt-1 text-muted">
             {done.investment.units.toFixed(3)} units of {fund.shortName} at {formatNav(done.investment.nav)}
           </p>
@@ -213,15 +214,15 @@ function InvestSheet({ fund, wallet, open, onClose }: { fund: FundDTO; wallet: W
         <div className="mt-4 space-y-2 rounded-2xl bg-subtle/70 p-4 text-sm">
           <div className="flex justify-between">
             <span className="text-muted">Invest</span>
-            <span className="font-bold tabular-nums">{formatPaise(plan.investPaise)}</span>
+            <span className="font-semibold tabular-nums">{formatPaise(plan.investPaise)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted">Stays in wallet</span>
-            <span className="font-bold tabular-nums">{formatPaise(plan.remainingPaise)}</span>
+            <span className="font-semibold tabular-nums">{formatPaise(plan.remainingPaise)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted">Units at {formatNav(fund.nav)}</span>
-            <span className="font-bold tabular-nums">≈ {unitsFor(plan.investPaise, fund.nav).toFixed(3)}</span>
+            <span className="font-semibold tabular-nums">≈ {unitsFor(plan.investPaise, fund.nav).toFixed(3)}</span>
           </div>
         </div>
       )}
@@ -318,7 +319,7 @@ export default function FundDetail() {
   if (funds.loading) {
     return (
       <Screen>
-        <ScreenHeader title="Fund" back="/invest" />
+        <ScreenHeader title="Fund" back="/funds" />
         <div className="space-y-4 px-5">
           <Skeleton className="h-28 rounded-3xl" />
           <Skeleton className="h-60 rounded-3xl" />
@@ -330,7 +331,7 @@ export default function FundDetail() {
   if (!fund) {
     return (
       <Screen>
-        <ScreenHeader title="Fund" back="/invest" />
+        <ScreenHeader title="Fund" back="/funds" />
         {funds.error ? (
           <ErrorMessage message={funds.error.message} onRetry={funds.reload} />
         ) : (
@@ -342,20 +343,20 @@ export default function FundDetail() {
 
   return (
     <Screen>
-      <ScreenHeader title={fund.shortName} subtitle={fund.fundHouse} back="/invest" />
+      <ScreenHeader title={fund.shortName} subtitle={fund.fundHouse} back="/funds" />
       <div className="space-y-4 px-5 pb-10">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-tan/60 px-2.5 py-1 text-xs font-bold text-primary-strong dark:text-ink">
+            <span className="rounded-full bg-subtle border border-line px-2.5 py-1 text-xs font-semibold text-ink">
               {FUND_CATEGORY_LABELS[fund.category]}
             </span>
             <span className="text-xs font-medium text-muted">{FUND_CATEGORY_RISK[fund.category]}</span>
           </div>
           <p className="mt-3 text-sm font-semibold text-muted">NAV on {formatShortDate(fund.navDate)}</p>
           <div className="flex items-baseline gap-3">
-            <p className="text-4xl font-extrabold tracking-tight tabular-nums">{formatNav(fund.nav)}</p>
+            <p className="text-[27px] leading-none font-light tracking-[-0.03em] tabular-nums">{formatNav(fund.nav)}</p>
             {fund.return1y !== null && (
-              <p className={cn('text-sm font-bold', fund.return1y >= 0 ? 'text-gain' : 'text-loss')}>
+              <p className={cn('text-sm font-semibold', fund.return1y >= 0 ? 'text-gain' : 'text-loss')}>
                 {formatPercent(fund.return1y, true)} 1Y
               </p>
             )}
@@ -365,22 +366,24 @@ export default function FundDetail() {
           </div>
         </div>
 
-        <NavChart fundId={fund.id} />
+        <Reveal>
+          <NavChart fundId={fund.id} />
+        </Reveal>
 
-        <div className="grid grid-cols-3 gap-2">
+        <Reveal delay={60} className="grid grid-cols-3 gap-2">
           <Card className="p-3">
             <p className="text-[11px] font-semibold text-muted">Min (demo)</p>
-            <p className="font-extrabold tabular-nums">{formatPaise(fund.minInvestmentPaise)}</p>
+            <p className="font-semibold tabular-nums">{formatPaise(fund.minInvestmentPaise)}</p>
           </Card>
           <Card className="p-3">
             <p className="text-[11px] font-semibold text-muted">Your units</p>
-            <p className="font-extrabold tabular-nums">{holding ? holding.units.toFixed(3) : '0'}</p>
+            <p className="font-semibold tabular-nums">{holding ? holding.units.toFixed(3) : '0'}</p>
           </Card>
           <Card className="p-3">
             <p className="text-[11px] font-semibold text-muted">Your value</p>
-            <p className="font-extrabold tabular-nums">{formatPaise(holding?.currentValuePaise ?? 0)}</p>
+            <p className="font-semibold tabular-nums">{formatPaise(holding?.currentValuePaise ?? 0)}</p>
           </Card>
-        </div>
+        </Reveal>
 
         {wallet.data && plan ? (
           <Card className="p-5">
@@ -388,7 +391,7 @@ export default function FundDetail() {
               <>
                 <div className="flex items-center gap-2 text-gain">
                   <Sparkles className="size-5" />
-                  <p className="font-bold">You can invest now</p>
+                  <p className="font-semibold">You can invest now</p>
                 </div>
                 <p className="mt-1 text-sm text-muted">
                   Your wallet has {formatPaise(wallet.data.balancePaise)}, above the {formatPaise(fund.minInvestmentPaise)}{' '}
@@ -400,12 +403,12 @@ export default function FundDetail() {
               </>
             ) : (
               <>
-                <p className="font-bold">
+                <p className="font-semibold">
                   {formatPaise(wallet.data.balancePaise)} / {formatPaise(fund.minInvestmentPaise)} saved
                 </p>
                 <ProgressBar className="mt-3 h-2.5" value={plan.progress} />
                 <p className="mt-2 text-sm text-muted">
-                  <span className="font-bold text-ink">{formatPaise(plan.shortfallPaise)}</span> more needed to invest.
+                  <span className="font-semibold text-ink">{formatPaise(plan.shortfallPaise)}</span> more needed to invest.
                   Your balance carries forward automatically.
                 </p>
                 <Button className="mt-4" fullWidth icon={<Plus className="size-4" />} onClick={() => setSheet('topup')}>
@@ -415,7 +418,7 @@ export default function FundDetail() {
                   <Button variant="secondary" onClick={() => navigate('/')}>
                     Keep saving
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/invest')}>
+                  <Button variant="outline" onClick={() => navigate('/funds')}>
                     Change fund
                   </Button>
                 </div>

@@ -61,7 +61,7 @@ export default function PinPad({ value, onChange, length = 4, error, shakeKey = 
               disabled={disabled}
               onClick={() => press(key)}
               aria-label={key === 'back' ? 'Delete' : key}
-              className="grid h-16 place-items-center rounded-2xl text-2xl font-semibold text-ink transition-colors hover:bg-subtle active:bg-tan/60 disabled:opacity-50"
+              className="grid h-16 place-items-center rounded-2xl text-2xl font-semibold text-ink transition-colors hover:bg-subtle active:bg-line disabled:opacity-50"
             >
               {key === 'back' ? <Delete className="size-6" /> : key}
             </button>

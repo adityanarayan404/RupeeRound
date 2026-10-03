@@ -16,8 +16,10 @@ export interface IFund {
   navDate: string
   /** null until a live fetch succeeds; latestNav is then a demo value. */
   navFetchedAt: Date | null
-  /** About 13 months of daily NAVs, oldest first. */
+  /** About 3 years of daily NAVs, oldest first. */
   navHistory: NavPoint[]
+  /** How many days of history navHistory was fetched with; a change forces a re-fetch. */
+  historyDays: number
 }
 
 const fundSchema = new Schema<IFund>({
@@ -32,6 +34,7 @@ const fundSchema = new Schema<IFund>({
   navDate: { type: String, required: true },
   navFetchedAt: { type: Date, default: null },
   navHistory: { type: [{ _id: false, date: String, nav: Number }], default: [] },
+  historyDays: { type: Number, default: 0 },
 })
 
 export type FundDocument = HydratedDocument<IFund>

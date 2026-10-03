@@ -37,7 +37,7 @@ export default function Sheet({ open, onClose, title, children }: SheetProps) {
         type="button"
         aria-label="Close"
         onClick={onClose}
-        className="animate-fade-in absolute inset-0 bg-[#1f1410]/45 backdrop-blur-[2px]"
+        className="animate-fade-in absolute inset-0 bg-black/60 backdrop-blur-[2px]"
       />
       <div
         ref={dialogRef}
@@ -50,7 +50,7 @@ export default function Sheet({ open, onClose, title, children }: SheetProps) {
         <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line-strong/50" />
         {title && (
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-extrabold">{title}</h2>
+            <h2 className="text-lg font-semibold">{title}</h2>
             <button
               type="button"
               onClick={onClose}

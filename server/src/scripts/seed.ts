@@ -17,10 +17,13 @@ import { toIsoDate } from '../utils/http.ts'
 
 const DEMO_PHONE = '9876543210'
 const DEMO_PIN = '1234'
-const DEMO_NAME = 'Aarav Sharma'
+const DEMO_NAME = 'Aditya'
 const DEMO_MULTIPLE = 10
-/** Wallet balance to end on: below the Small Cap minimum so carry-forward shows. */
-const TARGET_BALANCE_PAISE = 620_00
+/**
+ * Wallet balance to end on: just below the ₹100 Small Cap minimum, so the demo shows
+ * carry-forward first, and one or two payments later the wallet can invest.
+ */
+const TARGET_BALANCE_PAISE = 72_00
 
 const MERCHANTS: { name: string; category: MerchantCategory; min: number; max: number }[] = [
   { name: 'College Canteen', category: 'food', min: 25, max: 120 },

@@ -41,6 +41,17 @@ export function dayKey(value: string): string {
   return localDayKey(new Date(value))
 }
 
+/** Always 2 decimals, receipt style: ₹34.00 */
+export function formatRupees2(paise: number): string {
+  return `₹${(paise / 100).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
+
+/** "+2.45%" / "−8.90%" from a percent value (not a fraction). */
+export function formatPct(value: number | null, digits = 2): string {
+  if (value === null) return '—'
+  return `${value >= 0 ? '+' : '−'}${Math.abs(value).toFixed(digits)}%`
+}
+
 export function formatPercent(fraction: number, signed = false): string {
   const value = `${(Math.abs(fraction) * 100).toFixed(Math.abs(fraction) < 0.1 ? 2 : 1)}%`
   if (!signed) return value
@@ -67,6 +78,11 @@ export function initials(name: string): string {
 
 export function firstName(name: string): string {
   return name.split(/\s+/)[0] ?? name
+}
+
+/** "Saturday, 3 October" */
+export function todayLabel(date = new Date()): string {
+  return date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
 export function greeting(date = new Date()): string {

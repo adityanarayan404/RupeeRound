@@ -8,11 +8,11 @@ import { deflateSync } from 'node:zlib'
 const OUT = join(dirname(fileURLToPath(import.meta.url)), '../public/icons')
 
 const hex = (value) => [1, 3, 5].map((i) => parseInt(value.slice(i, i + 2), 16))
-const MOCHA = hex('#A47864')
-const CHOCOLATE = hex('#56443E')
-const CREAM = hex('#F1F0E2')
-const SIROCCO = hex('#C39D88')
-const AMBER = hex('#8B645A')
+const CARD_TOP = hex('#2A211C')
+const CARD_BOTTOM = hex('#000000')
+const COIN = hex('#F4F1EC')
+const RING = hex('#958C84')
+const ARROW_INK = hex('#0A0807')
 
 const crcTable = Array.from({ length: 256 }, (_, n) => {
   let c = n
@@ -77,12 +77,12 @@ function shade(x, y, { rounded, inset }) {
   const cx = 32 + (x - 32) * scale
   const cy = 32 + (y - 32) * scale
   const coin = Math.hypot(cx - 32, cy - 32)
-  if (ARROW.some(([ax, ay, bx, by]) => segment(cx, cy, ax, ay, bx, by) <= 1.7) && coin < 19) return AMBER
-  if (Math.abs(coin - 15) <= 0.75) return SIROCCO
-  if (coin <= 19) return CREAM
+  if (ARROW.some(([ax, ay, bx, by]) => segment(cx, cy, ax, ay, bx, by) <= 1.7) && coin < 19) return ARROW_INK
+  if (Math.abs(coin - 15) <= 0.75) return RING
+  if (coin <= 19) return COIN
   if (rounded && roundedRect(x, y, 64, 18) > 0) return null
   const t = (x + y) / 128
-  return MOCHA.map((value, i) => Math.round(value + (CHOCOLATE[i] - value) * t))
+  return CARD_TOP.map((value, i) => Math.round(value + (CARD_BOTTOM[i] - value) * t))
 }
 
 function render(size, options) {

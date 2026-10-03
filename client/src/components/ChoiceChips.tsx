@@ -20,9 +20,9 @@ export default function ChoiceChips<T extends string>({ legend, options, value, 
             aria-pressed={value === option.value}
             onClick={() => onChange(option.value)}
             className={cn(
-              'min-h-11 rounded-2xl border px-2 py-2 text-sm leading-tight font-bold transition-all',
+              'min-h-11 rounded-2xl border px-2 py-2 text-sm leading-tight font-semibold transition-all',
               value === option.value
-                ? 'border-primary bg-primary text-on-primary shadow-md shadow-primary/25'
+                ? 'border-primary bg-primary text-on-primary shadow-md shadow-black/20'
                 : 'border-line bg-card text-ink hover:bg-subtle',
             )}
           >

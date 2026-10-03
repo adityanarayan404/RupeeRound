@@ -20,7 +20,7 @@ export default function AuthScreen({
     <Screen className="flex flex-col">
       <ScreenHeader title="" back={back} />
       <div className="animate-rise flex flex-1 flex-col px-6">
-        <h1 className="text-3xl font-extrabold tracking-tight">{title}</h1>
+        <h1 className="font-display text-[31px]">{title}</h1>
         {description && <p className="mt-2 text-base text-muted">{description}</p>}
         <div className="mt-8 flex flex-1 flex-col">{children}</div>
       </div>

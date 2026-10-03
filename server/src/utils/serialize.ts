@@ -1,5 +1,13 @@
 // Converts Mongoose documents into the DTOs defined in @rupeeround/shared.
-import type { FundDTO, GoalDTO, InvestmentDTO, NavSource, TransactionDTO, UserDTO } from '@rupeeround/shared'
+import {
+  fundReturns,
+  type FundDTO,
+  type GoalDTO,
+  type InvestmentDTO,
+  type NavSource,
+  type TransactionDTO,
+  type UserDTO,
+} from '@rupeeround/shared'
 import { config } from '../config.ts'
 import type { IFund } from '../models/Fund.ts'
 import type { IGoal } from '../models/Goal.ts'
@@ -64,6 +72,7 @@ export function toFundDTO(fund: WithId<IFund>): FundDTO {
     navDate: fund.navDate,
     navSource: navSource(fund),
     return1y: oneYearReturn(fund),
+    returns: fundReturns(fund.navHistory),
   }
 }
 

@@ -10,6 +10,9 @@ const apiProxy = {
   '/api': {
     target: process.env.API_PROXY_TARGET || 'http://localhost:4000',
     changeOrigin: true,
+    // Pass the real client IP on, so the API's rate limits are per device
+    // instead of everyone sharing the proxy's one IP.
+    xfwd: true,
   },
 }
 

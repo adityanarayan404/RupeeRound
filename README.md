@@ -23,10 +23,10 @@ New accounts work too: any 10-digit number starting with 6–9, OTP `123456`.
 
 ## Demo script (2 minutes)
 
-1. Log in with **98765 43210** and PIN **1234**. Home shows ₹618 in the wallet, still short of the ₹1,000 Small Cap minimum.
-2. Tap **Pay** → Café → ₹32 → ₹5 step. The preview shows ₹35 to pay, +₹3 to the wallet. Pay with PIN 1234.
-3. On Invest → Small Cap the balance is below the minimum, so it carries forward. Use **Add money** to top up the shortfall, then **Invest**.
-4. Show Goals and the dark mode toggle on Profile.
+1. Log in with **98765 43210** and PIN **1234**. Home shows ₹72 in the wallet, just short of the ₹100 minimum for HDFC Small Cap; one or two payments push it over.
+2. Tap **Scan** → **Use a demo shop QR** (or scan any real UPI QR). The shop and amount fill in, and the breakdown shows the round-up. Pay with PIN 1234 and show the receipt.
+3. Home → **Compare funds**: live NAV and 1M/3M/1Y/3Y returns. Open Small Cap: the balance is below the minimum, so it carries forward. **Add money**, then **Invest**.
+4. Open the **AI** tab and ask any question, e.g. "How long until I can invest?" or "Is small cap risky?".
 
 Run `pnpm seed` again to reset the demo account.
 

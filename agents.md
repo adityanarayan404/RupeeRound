@@ -33,6 +33,7 @@ pnpm workspace with three packages:
 - Metrics come from the stored mfapi.in NAV history via `fundMetrics` in `shared/src/metrics.ts`.
 - `server/src/services/advisor.ts` asks Groq (`GROQ_MODEL`, default `openai/gpt-oss-20b`) to word the explanation, checks the reply (no invented numbers, no "best/guaranteed/sure", max 3 sentences) and falls back to `templateExplanation` on any problem. Results are cached in memory for 3 hours.
 - Only computed facts go to Groq: never name, phone or the wallet balance. Every explanation ends with `ADVISOR_DISCLAIMER`.
+- `POST /api/assistant/chat` (`server/src/services/assistant.ts`) is "Ask RupeeRound AI": mutual-fund questions only. Off-topic gets exactly `REFUSAL_MESSAGE` (`assistantText.ts`). It can call `search_funds` / `get_fund_data` (mfapi.in, metrics computed in code, cached 6 h). Context is computed facts only (no name or phone); keep numbers like `estimatedDaysToReachMinimum` computed in code. Groq failures return `source: 'unavailable'` with HTTP 200.
 - `GROQ_API_KEY` lives only in `server/.env`. Never put it in client code, `VITE_` variables, logs or commits.
 
 ## Server structure
@@ -53,7 +54,9 @@ Start with task-relevant files below. Only follow imports or inspect other files
 - `client/src/App.tsx` - providers and routes
 - `client/src/index.css` - Tailwind v4 import, colour tokens for light and dark, animations
 - `client/src/components/PhoneFrame.tsx` - full screen on phones, centred 390×844 phone frame on desktop; also owns the overlay layer for sheets, toasts and confetti
-- `client/src/layouts/AppLayout.tsx` - tab screens plus `TabBar` (Home · Invest · raised Pay · Goals · Profile)
+- `client/src/layouts/AppLayout.tsx` - tab screens plus `TabBar` (Home · Transactions · raised Scan · Portfolio · AI Advisor; Settings opens from the avatar on Home); `/funds` and `/goals` also use it
+- Routes: `/` Home, `/transactions`, `/pay` (`?scan=1` opens the QR scanner), `/portfolio`, `/funds` (compare) and `/funds/:id`, `/advisor` (AI Advisor chat, its own fixed layout), `/settings`; `/goals` and `/ai` redirect to `/advisor`
+- `client/src/components/QrScanner.tsx` + `client/src/lib/upi.ts` - UPI QR scanning with `jsqr` (live camera needs HTTPS or localhost; photo fallback works everywhere)
 - `client/src/pages/` - one file per screen; `pages/auth/` holds phone → OTP → PIN sign-up and login
 - `client/src/context/` - auth session, theme, toasts
 - `client/src/lib/api.ts` - `api<T>(path, { method, body })` fetch wrapper that adds the token and throws `ApiError`
@@ -64,9 +67,11 @@ Start with task-relevant files below. Only follow imports or inspect other files
 
 ## Design
 
-- Mobile only. Screens are built for a ~390px wide phone; sheets, toasts and fixed bars position `absolute` inside the phone frame, never `fixed` to the browser window.
-- Palette: Pantone 2025 Mocha Mousse family, exposed as Tailwind colours `bg`, `card`, `subtle`, `tan`, `line`, `line-strong`, `ink`, `muted`, `primary`, `primary-strong`, `on-primary`, `accent`, `accent-soft`, `gain`, `loss`. Use these tokens (e.g. `bg-card text-ink`), not raw hex, so dark mode works.
-- Light theme by default with a dark toggle (`.dark` class on `<html>`); check both when changing UI.
+- Mobile only, sized for a 6.5-inch phone (414×896); the root font size is 15px for a compact, refined layout. On desktop `PhoneFrame` keeps that aspect ratio and scales down on short screens. Sheets, toasts and fixed bars position `absolute` inside the phone frame, never `fixed` to the browser window.
+- Premium monochrome palette: near-black, very dark brown surfaces and warm white, exposed as Tailwind colours `bg`, `card`, `subtle`, `tan`, `line`, `line-strong`, `ink`, `muted`, `primary`, `primary-strong`, `on-primary`, `accent`, `accent-soft`, `gain`, `loss`. Use these tokens (e.g. `bg-card text-ink`), not raw hex, so both themes work.
+- Dark theme by default with a light (white/black) toggle (`.dark` class on `<html>`); check both when changing UI.
+- Typography: Inter for UI and numbers (large money figures use `font-light`), Instrument Serif via `font-display` for page titles and greetings, `eyebrow` for small uppercase section labels.
+- Motion: wrap sections in `Reveal` for the one-time fade-up on scroll; `ScreenHeader` frosts and shrinks its title once the screen scrolls. Keep animation subtle and respect reduced motion.
 - Show skeletons (`Skeleton`, `SkeletonRows`) on first load, not spinners.
 - Respect safe areas with the `pt-safe` / `pb-safe` utilities.
 
