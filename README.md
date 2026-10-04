@@ -15,6 +15,10 @@ A mobile-first micro-investing app that turns the spare change from everyday UPI
 ![Groq](https://img.shields.io/badge/AI-Groq-F55036)
 ![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8)
 
+### [▶ Try the live app](https://rupee-round.vercel.app)
+
+**Phone** `98765 43210` · **PIN** `1234`
+
 <img src="docs/screenshots/home.png" alt="RupeeRound home screen: today's spare change, live NAV of the chosen fund and round-up wallet progress" width="340" />
 
 </div>
@@ -23,8 +27,23 @@ A mobile-first micro-investing app that turns the spare change from everyday UPI
 
 ---
 
+## Live demo
+
+| | URL |
+|---|---|
+| **App** (Vercel) | https://rupee-round.vercel.app |
+| **API** (Render) | https://rupeeround.onrender.com |
+| **API health check** | https://rupeeround.onrender.com/api/health → `{"ok":true}` |
+
+Log in with **98765 43210** and PIN **1234**, or create a new account with any 10-digit number starting with 6–9 and OTP **123456**.
+
+> **First load can take up to 50 seconds.** The API runs on Render's free plan, which sleeps after about 15 minutes without traffic. Open the health check link once to wake it up, then the app responds normally.
+
+---
+
 ## Contents
 
+- [Live demo](#live-demo)
 - [The idea](#the-idea)
 - [Features](#features)
 - [How it works](#how-it-works)
@@ -41,6 +60,7 @@ A mobile-first micro-investing app that turns the spare change from everyday UPI
 - [Demo script](#demo-script-2-minutes)
 - [Testing](#testing)
 - [Deployment](#deployment)
+- [Contributing](#contributing)
 
 ---
 
@@ -392,7 +412,7 @@ erDiagram
 | **AI** | Groq (`openai/gpt-oss-20b`) with tool calling |
 | **Data** | mfapi.in (real Indian mutual fund NAV history) |
 | **Tooling** | pnpm workspaces, TypeScript strict, tsx, Node's built-in test runner, mise |
-| **Hosting** | Vercel (client), Render (API), MongoDB Atlas (DB) |
+| **Hosting** | Vercel (React client), Render (Express API, Singapore region), MongoDB Atlas (database, AWS Mumbai) |
 
 ---
 
@@ -455,7 +475,7 @@ RupeeRound/
 **Requirements:** Node.js 22+, pnpm 10 (`npm i -g pnpm@10`), and a MongoDB connection string (Atlas free tier works; transactions need a replica set, which Atlas provides).
 
 ```bash
-git clone https://github.com/adityanarayan404/RupeeRound.git
+git clone https://github.com/VrxGhost/RupeeRound.git
 cd RupeeRound
 pnpm install
 cp server/.env.example server/.env   # fill in MONGODB_URI and JWT_SECRET (GROQ_API_KEY optional)
@@ -481,8 +501,8 @@ New accounts work with any 10-digit number starting with 6–9.
 |---|---|---|
 | `MONGODB_URI` | ✅ | MongoDB connection string |
 | `JWT_SECRET` | ✅ | Long random string for signing JWTs |
-| `PORT` | | API port (default `4000`) |
-| `CLIENT_ORIGIN` | | Comma-separated frontend URLs allowed by CORS |
+| `PORT` | | API port (default `4000`). Leave unset on Render, which assigns its own |
+| `CLIENT_ORIGIN` | | Comma-separated frontend URLs allowed by CORS (`http://localhost:8443` locally) |
 | `DEMO_OTP` | | OTP accepted for every number (default `123456`) |
 | `NAV_CACHE_HOURS` | | How long fetched NAVs are reused (default `6`) |
 | `GROQ_API_KEY` | | Enables AI explanations and the chat; without it the template answers are used |
@@ -503,13 +523,15 @@ New accounts work with any 10-digit number starting with 6–9.
 
 ## Demo script (2 minutes)
 
+Use the [live app](https://rupee-round.vercel.app) or a local run. Wake the API first by opening the [health check](https://rupeeround.onrender.com/api/health) a minute before presenting.
+
 1. **Log in** with 98765 43210 and PIN 1234. Home shows ₹72 in the wallet, just short of the ₹100 minimum for HDFC Small Cap.
 2. **Tap Scan** → *Use a demo shop QR* (or scan any real UPI QR). The shop and amount fill in and the round-up breakdown appears. Pay with PIN 1234 and see the receipt.
 3. **Home → Compare funds.** Live NAVs and 1M/3M/1Y/3Y returns. Open a fund: if the balance is below the minimum it carries forward. **Add money**, then **Invest**.
 4. **Portfolio.** See the new units at today's NAV.
 5. **AI Advisor.** Ask *"How long until I can invest?"*, *"Is small cap risky?"* or *"Tell me about Parag Parikh Flexi Cap"*. Then try an off-topic question to see the guardrail.
 
-Run `pnpm seed` again to reset.
+Run `pnpm seed` again to reset. Because local and production share the same Atlas database, this also resets the demo account on the live app.
 
 ---
 
@@ -529,11 +551,109 @@ Unit tests cover the parts where mistakes would cost money or trust:
 
 ## Deployment
 
-| Part | Platform | Settings |
+RupeeRound runs on three free-tier services, each doing one job:
+
+```
+Browser ──► Vercel (React UI) ──► Render (Express API) ──► MongoDB Atlas (data)
+                                        │
+                                        ├──► mfapi.in (live NAVs)
+                                        └──► Groq (AI wording)
+```
+
+| Part | Platform | Live URL | Role |
+|---|---|---|---|
+| Client | Vercel | https://rupee-round.vercel.app | Serves the built React app. Static only, no server code runs here. |
+| API | Render (Web Service) | https://rupeeround.onrender.com | Runs the Express server: auth, round-ups, wallet, investments, AI. |
+| Database | MongoDB Atlas (M0, AWS Mumbai) | | Stores users, wallets, transactions, funds and goals. |
+
+Pushing to `main` redeploys **both** Vercel and Render automatically.
+
+### 1. MongoDB Atlas
+
+- **Network Access → IP Access List:** add `0.0.0.0/0`. Render's free plan has no fixed outbound IP.
+- **Database Users:** use a password with letters and numbers only, so the connection string needs no URL encoding.
+- Connection string format (database name goes before the `?`, and is case-sensitive):
+  ```
+  mongodb+srv://<user>:<password>@<cluster>.mongodb.net/RupeeRound?appName=Cluster0
+  ```
+
+### 2. Render (API)
+
+| Setting | Value |
+|---|---|
+| Language | Node |
+| Branch | `main` |
+| Region | Singapore (closest to the Atlas cluster in Mumbai) |
+| Root Directory | **empty** (the server imports `shared/` through the pnpm workspace) |
+| Build Command | `pnpm install --frozen-lockfile` (no build step; the server runs TypeScript directly with `tsx`) |
+| Start Command | `pnpm start` |
+| Instance | Free |
+
+Environment variables:
+
+| Key | Value |
+|---|---|
+| `MONGODB_URI` | Atlas connection string |
+| `JWT_SECRET` | Long random string |
+| `CLIENT_ORIGIN` | `https://rupee-round.vercel.app` (no trailing slash) |
+| `DEMO_OTP` | `123456` |
+| `NODE_VERSION` | `22` |
+| `GROQ_API_KEY` | From [console.groq.com](https://console.groq.com); without it the AI features fall back to template answers |
+
+Do **not** set `PORT` on Render. It assigns one itself and the server reads it from the environment.
+
+A healthy deploy log ends with `MongoDB connected`, `RupeeRound API listening` and **Your service is live**.
+
+### 3. Vercel (client)
+
+| Setting | Value |
+|---|---|
+| Root Directory | `client` |
+| Build Command | `pnpm build` |
+| Output Directory | `dist` |
+| Env: `VITE_API_URL` | `https://rupeeround.onrender.com` (type **Config**, not Secret; no trailing slash, no `/api`) |
+
+`VITE_` variables are baked into the JavaScript at **build time**, so after adding or changing one you must **Redeploy** from the Deployments tab. The value is public by design: it's just the API's address. All real secrets stay on Render.
+
+`client/vercel.json` rewrites every non-`/api` path to `index.html`, so React Router deep links work on refresh.
+
+### 4. Seed the demo account
+
+Run once from a laptop whose `server/.env` points at the production Atlas database:
+
+```bash
+pnpm seed
+```
+
+This only resets the demo user (98765 43210) and leaves other accounts alone.
+
+### Troubleshooting
+
+| Symptom | Cause | Fix |
 |---|---|---|
-| Database | MongoDB Atlas | Network Access: allow `0.0.0.0/0` (or Render's IPs) |
-| API | Render (Web Service) | Root: repo root · Build: `pnpm install --frozen-lockfile` · Start: `pnpm start` · Env: `MONGODB_URI`, `JWT_SECRET`, `CLIENT_ORIGIN=https://<app>.vercel.app`, optional `GROQ_API_KEY`, `GROQ_MODEL` |
-| Client | Vercel | Root: `client` · Build: `pnpm build` · Output: `dist` · Env: `VITE_API_URL=https://<api>.onrender.com` |
+| Login shows "Something went wrong" | Frontend has no API address, so it calls Vercel, which has no `/api` | Set `VITE_API_URL` on Vercel and redeploy |
+| Render log: `bad auth : authentication failed` | Wrong Atlas username or password in `MONGODB_URI` | Reset the DB user's password in Atlas, update the env var, redeploy |
+| Browser console shows a CORS error | `CLIENT_ORIGIN` doesn't exactly match the Vercel URL | Remove any trailing slash, check `https://` |
+| First request hangs for about 50 seconds | Render free instance waking from sleep | Open `/api/health` first |
+| AI chat says "unavailable" | `GROQ_API_KEY` missing or invalid on Render | Add the key and redeploy |
+| NAV date looks old | No NAV is published on weekends or market holidays | Expected; it updates after the next trading day closes |
+
+---
+
+## Contributing
+
+1. The repo owner adds teammates under **Settings → Collaborators**; they accept the invite.
+2. Clone, install and create `server/.env` as in [Run it locally](#run-it-locally). Get the secret values privately from the team, never through Git.
+3. Work on a branch and open a pull request, because merging to `main` deploys to production:
+   ```bash
+   git checkout main && git pull
+   git checkout -b feature/short-name
+   # make changes
+   git add .
+   git commit -m "Describe the change"
+   git push -u origin feature/short-name
+   ```
+4. Run `pnpm typecheck` and `pnpm test` before opening the PR.
 
 ---
 
