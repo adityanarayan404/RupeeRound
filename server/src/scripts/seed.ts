@@ -3,7 +3,7 @@
 import { calculateRoundUp, unitsFor, type MerchantCategory } from '@rupeeround/shared'
 import { Types } from 'mongoose'
 import { connectDb, disconnectDb } from '../db.ts'
-import { Fund, type FundDocument } from '../models/Fund.ts'
+import type { FundDocument } from '../models/Fund.ts'
 import { Goal } from '../models/Goal.ts'
 import { Investment } from '../models/Investment.ts'
 import { Otp } from '../models/Otp.ts'
@@ -12,7 +12,7 @@ import { Transaction } from '../models/Transaction.ts'
 import { User } from '../models/User.ts'
 import { Wallet } from '../models/Wallet.ts'
 import { hashSecret } from '../services/auth.ts'
-import { ensureFunds, refreshStaleFunds } from '../services/funds.ts'
+import { ensureFunds, listFunds, refreshStaleFunds } from '../services/funds.ts'
 import { toIsoDate } from '../utils/http.ts'
 
 const DEMO_PHONE = '9876543210'
@@ -23,7 +23,7 @@ const DEMO_MULTIPLE = 10
  * Wallet balance to end on: just below the ₹100 Small Cap minimum, so the demo shows
  * carry-forward first, and one or two payments later the wallet can invest.
  */
-const TARGET_BALANCE_PAISE = 72_00
+const TARGET_BALANCE_PAISE = 68_00
 
 const MERCHANTS: { name: string; category: MerchantCategory; min: number; max: number }[] = [
   { name: 'College Canteen', category: 'food', min: 25, max: 120 },
@@ -71,7 +71,7 @@ async function main(): Promise<void> {
   await ensureFunds()
   await refreshStaleFunds()
 
-  const funds = await Fund.find().sort({ sortOrder: 1 })
+  const funds = await listFunds()
   const large = funds.find((fund) => fund.category === 'large')!
   const mid = funds.find((fund) => fund.category === 'mid')!
   const small = funds.find((fund) => fund.category === 'small')!

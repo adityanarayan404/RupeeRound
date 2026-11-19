@@ -46,7 +46,7 @@ meRouter.patch('/', async (req, res) => {
   if (updates.name !== undefined) user.name = updates.name
   if (updates.defaultMultiple !== undefined) user.defaultMultiple = updates.defaultMultiple
   if (updates.selectedFundId !== undefined) {
-    if (updates.selectedFundId && !(await Fund.exists({ _id: updates.selectedFundId }))) {
+    if (updates.selectedFundId && !(await Fund.exists({ _id: updates.selectedFundId, retired: { $ne: true } }))) {
       throw new HttpError(404, 'fund_not_found', 'That fund does not exist.')
     }
     user.selectedFund = updates.selectedFundId ? new Types.ObjectId(updates.selectedFundId) : null

@@ -88,7 +88,7 @@ Once the round-up wallet covers a fund's minimum, you invest it in a **Large, Mi
 | 📷 | **Scan & pay** | Scan any real UPI QR code (live camera, or a photo fallback). The shop name and amount fill in, and the round-up breakdown appears before you pay. |
 | 🪙 | **Round-up wallet** | Choose a ₹5 / ₹10 / ₹20 / ₹50 / ₹100 step. Spare change collects in a wallet, with progress shown towards the chosen fund's minimum. |
 | ↪️ | **Carry-forward rule** | You can only invest once the wallet covers the fund minimum. Until then the balance carries forward, and you can top up the difference. |
-| 📈 | **Real fund data** | Three real index funds with live NAVs from mfapi.in, plus 1M / 3M / 1Y / 3Y returns, volatility and drawdown computed from NAV history. |
+| 📈 | **Real fund data** | Three real index funds with live NAVs from mfapi.in, plus 1M / 3M / 1Y / 3Y returns, annualised volatility and drawdown computed from NAV history. |
 | 💼 | **Portfolio** | Units held, invested amount, current value and gain/loss at today's NAV. |
 | 🧭 | **Fund suggestion** | A three-question risk quiz scores you 0–6 and maps you to Large, Mid or Small Cap. The decision comes from fixed, unit-tested rules, and AI only words the explanation. |
 | 🤖 | **Ask RupeeRound AI** | A chat assistant that only answers mutual-fund questions. It can look up **any** Indian mutual fund on mfapi.in through tool calls, and refuses off-topic questions. |
@@ -383,7 +383,7 @@ erDiagram
 |---|---|---|---|
 | Large Cap | UTI Nifty 50 Index Fund – Direct Growth | 120716 | ₹100 |
 | Mid Cap | Motilal Oswal Nifty Midcap 150 Index Fund – Direct Growth | 147622 | ₹500 |
-| Small Cap | HDFC Small Cap Fund – Direct Growth | 130503 | ₹100 |
+| Small Cap | Motilal Oswal Nifty Smallcap 250 Index Fund – Direct Growth | 147623 | ₹100 |
 
 ---
 
@@ -525,7 +525,7 @@ New accounts work with any 10-digit number starting with 6–9.
 
 Use the [live app](https://rupee-round.vercel.app) or a local run. Wake the API first by opening the [health check](https://rupeeround.onrender.com/api/health) a minute before presenting.
 
-1. **Log in** with 98765 43210 and PIN 1234. Home shows ₹72 in the wallet, just short of the ₹100 minimum for HDFC Small Cap.
+1. **Log in** with 98765 43210 and PIN 1234. Home shows ₹68 in the wallet, just short of the ₹100 minimum for the Motilal Oswal Smallcap 250 index fund.
 2. **Tap Scan** → *Use a demo shop QR* (or scan any real UPI QR). The shop and amount fill in and the round-up breakdown appears. Pay with PIN 1234 and see the receipt.
 3. **Home → Compare funds.** Live NAVs and 1M/3M/1Y/3Y returns. Open a fund: if the balance is below the minimum it carries forward. **Add money**, then **Invest**.
 4. **Portfolio.** See the new units at today's NAV.

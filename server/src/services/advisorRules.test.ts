@@ -15,7 +15,7 @@ const metrics: FundMetrics = {
   latestNav: 40,
   navDate: '2026-10-01',
   return1yPct: 4.4,
-  volatilityPct: 1.2,
+  annualVolatilityPct: 19.1,
   maxDrawdownPct: 12.3,
 }
 

@@ -1,6 +1,7 @@
 import type { FundCategory, NavPoint } from '@rupeeround/shared'
 import { config } from '../config.ts'
 import { Fund, type FundDocument } from '../models/Fund.ts'
+import { User } from '../models/User.ts'
 import { toIsoDate } from '../utils/http.ts'
 
 interface FundDefinition {
@@ -14,9 +15,8 @@ interface FundDefinition {
   fallbackNav: number
 }
 
-// Real funds so the NAVs from mfapi.in are genuine.
-// Minimums are RupeeRound demo values, labelled as such in the app. (HDFC Small Cap's
-// ₹100 also matches its real minimum lump sum.)
+// Real index funds (AMFI category "Index Funds") so the NAVs from mfapi.in are genuine.
+// Minimums are RupeeRound demo values, labelled as such in the app.
 const FUND_DEFINITIONS: FundDefinition[] = [
   {
     schemeCode: 120716,
@@ -37,43 +37,39 @@ const FUND_DEFINITIONS: FundDefinition[] = [
     fallbackNav: 39.29,
   },
   {
-    schemeCode: 130503,
-    name: 'HDFC Small Cap Fund - Direct Plan - Growth Option',
-    shortName: 'HDFC Small Cap',
-    fundHouse: 'HDFC Mutual Fund',
+    schemeCode: 147623,
+    name: 'Motilal Oswal Nifty Smallcap 250 Index Fund - Direct Plan - Growth',
+    shortName: 'Motilal Oswal Smallcap 250',
+    fundHouse: 'Motilal Oswal Mutual Fund',
     category: 'small',
     minInvestmentPaise: 100_00,
-    fallbackNav: 155.01,
+    fallbackNav: 39.62,
   },
 ]
 
 /**
- * When a category's scheme changes (e.g. Small Cap: Motilal Oswal → HDFC), switch the
- * existing fund record to the new scheme instead of adding a fourth fund. Its _id stays
- * the same, so users "saving towards" it keep pointing at the right category; the old
- * scheme's NAV history is cleared and re-fetched for the new one.
+ * Funds no longer in FUND_DEFINITIONS are retired rather than switched to a new scheme:
+ * units bought at one scheme's NAV must never be valued at another scheme's NAV.
+ * Users saving towards a retired fund move to the current fund in the same category.
  */
-async function migrateReplacedSchemes(): Promise<void> {
-  const codes = FUND_DEFINITIONS.map((definition) => definition.schemeCode)
-  for (const definition of FUND_DEFINITIONS) {
-    if (await Fund.exists({ schemeCode: definition.schemeCode })) continue
-    const replaced = await Fund.findOne({ category: definition.category, schemeCode: { $nin: codes } })
-    if (!replaced) continue
-    console.log(`Switching ${replaced.shortName} to ${definition.shortName}`)
-    replaced.schemeCode = definition.schemeCode
-    replaced.fundHouse = definition.fundHouse
-    replaced.latestNav = definition.fallbackNav
-    replaced.navDate = toIsoDate(new Date())
-    replaced.navFetchedAt = null
-    replaced.navHistory = []
-    replaced.historyDays = 0
-    await replaced.save()
+async function retireReplacedSchemes(codes: number[]): Promise<void> {
+  const retired = await Fund.find({ schemeCode: { $nin: codes } })
+  for (const old of retired) {
+    if (!old.retired) {
+      old.retired = true
+      await old.save()
+      console.log(`Retired ${old.shortName}; existing holdings are kept`)
+    }
+    const replacement = await Fund.findOne({ category: old.category, schemeCode: { $in: codes } })
+    if (replacement) {
+      await User.updateMany({ selectedFund: old._id }, { $set: { selectedFund: replacement._id } })
+    }
   }
 }
 
 /** Creates the three demo funds if they are missing and keeps their settings in sync. */
 export async function ensureFunds(): Promise<void> {
-  await migrateReplacedSchemes()
+  const codes = FUND_DEFINITIONS.map((definition) => definition.schemeCode)
   await Promise.all(
     FUND_DEFINITIONS.map((definition, index) =>
       Fund.updateOne(
@@ -85,6 +81,7 @@ export async function ensureFunds(): Promise<void> {
             category: definition.category,
             minInvestmentPaise: definition.minInvestmentPaise,
             sortOrder: index,
+            retired: false,
           },
           $setOnInsert: {
             fundHouse: definition.fundHouse,
@@ -98,6 +95,7 @@ export async function ensureFunds(): Promise<void> {
       ),
     ),
   )
+  await retireReplacedSchemes(codes)
 }
 
 interface MfApiResponse {
@@ -184,6 +182,7 @@ export function refreshStaleFunds(): Promise<void> {
   return refreshInFlight
 }
 
+/** The funds currently offered (retired ones are left out). */
 export async function listFunds(): Promise<FundDocument[]> {
-  return Fund.find().sort({ sortOrder: 1 })
+  return Fund.find({ retired: { $ne: true } }).sort({ sortOrder: 1 })
 }

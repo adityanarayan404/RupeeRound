@@ -20,6 +20,11 @@ export interface IFund {
   navHistory: NavPoint[]
   /** How many days of history navHistory was fetched with; a change forces a re-fetch. */
   historyDays: number
+  /**
+   * No longer offered: hidden from the fund list and closed to new investments, but kept
+   * (with live NAVs) so existing holdings are still valued at their own scheme's NAV.
+   */
+  retired: boolean
 }
 
 const fundSchema = new Schema<IFund>({
@@ -35,6 +40,7 @@ const fundSchema = new Schema<IFund>({
   navFetchedAt: { type: Date, default: null },
   navHistory: { type: [{ _id: false, date: String, nav: Number }], default: [] },
   historyDays: { type: Number, default: 0 },
+  retired: { type: Boolean, default: false },
 })
 
 export type FundDocument = HydratedDocument<IFund>

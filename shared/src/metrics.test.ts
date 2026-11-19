@@ -17,7 +17,7 @@ test('empty history returns nulls instead of throwing', () => {
     latestNav: null,
     navDate: null,
     return1yPct: null,
-    volatilityPct: null,
+    annualVolatilityPct: null,
     maxDrawdownPct: null,
   })
 })
@@ -27,7 +27,7 @@ test('a single point only knows the latest NAV', () => {
   assert.equal(metrics.latestNav, 50)
   assert.equal(metrics.navDate, '2026-10-01')
   assert.equal(metrics.return1yPct, null)
-  assert.equal(metrics.volatilityPct, null)
+  assert.equal(metrics.annualVolatilityPct, null)
   assert.equal(metrics.maxDrawdownPct, null)
 })
 
@@ -53,12 +53,12 @@ test('no one-year return when history is shorter than a year', () => {
   assert.equal(fundMetrics(series('2026-06-01', [10, 11, 12])).return1yPct, null)
 })
 
-test('volatility is the standard deviation of daily % changes', () => {
-  // Daily changes: +10%, −10%, +10%, −10% → mean 0, sample std dev ≈ 11.55
+test('volatility is the daily % change std dev, annualised by √252', () => {
+  // Daily changes: +10%, −10%, +10%, −10% → mean 0, sample std dev ≈ 11.547; × √252 ≈ 183.30
   const metrics = fundMetrics(series('2026-01-01', [100, 110, 99, 108.9, 98.01]))
-  assert.equal(metrics.volatilityPct, 11.55)
+  assert.equal(metrics.annualVolatilityPct, 183.3)
   // A perfectly steady fund has zero volatility.
-  assert.equal(fundMetrics(series('2026-01-01', [100, 101, 102.01])).volatilityPct, 0)
+  assert.equal(fundMetrics(series('2026-01-01', [100, 101, 102.01])).annualVolatilityPct, 0)
 })
 
 test('period returns: day, months and years, null when history is too short', () => {

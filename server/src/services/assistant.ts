@@ -197,7 +197,7 @@ async function buildContext(userId: string) {
       'Small Cap': 'companies ranked 251 and below by market value (SEBI definition)',
     },
     notes:
-      'navChangePct = percent change of NAV (day = since the previous NAV; month1/month3/year1/year3 over that period; null = not enough history). pastYear.maxDrawdownPct = biggest fall from a high in about the last year. estimatedDaysToReachMinimum is a rough estimate from the last 30 days of round-ups.',
+      'navChangePct = percent change of NAV (day = since the previous NAV; month1/month3/year1/year3 over that period; null = not enough history). pastYear.annualVolatilityPct = annualised volatility over about the last year (standard deviation of daily NAV changes scaled to a year, as fund factsheets quote it); call it "annualised volatility". pastYear.maxDrawdownPct = biggest fall from a high in about the last year. estimatedDaysToReachMinimum is a rough estimate from the last 30 days of round-ups.',
   }
 }
 

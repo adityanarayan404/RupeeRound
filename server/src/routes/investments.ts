@@ -42,6 +42,9 @@ investmentsRouter.post('/', async (req, res) => {
 
   const fund = await Fund.findById(fundId)
   if (!fund) throw new HttpError(404, 'fund_not_found', 'That fund does not exist.')
+  if (fund.retired) {
+    throw new HttpError(409, 'fund_retired', `${fund.shortName} is no longer offered. Choose another fund.`)
+  }
   const wallet = await getOrCreateWallet(userId)
 
   let plan: InvestmentPlan

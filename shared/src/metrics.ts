@@ -6,13 +6,18 @@ export interface FundMetrics {
   navDate: string | null
   /** NAV change over about one year, in percent (12.5 = +12.5%). */
   return1yPct: number | null
-  /** Standard deviation of daily NAV changes, in percent. Higher = bumpier ride. */
-  volatilityPct: number | null
+  /**
+   * Annualised volatility in percent: the standard deviation of daily NAV changes
+   * scaled by √252 trading days, the usual way fund factsheets quote it. Higher = bumpier ride.
+   */
+  annualVolatilityPct: number | null
   /** Largest fall from a high point to a later low, in percent (25 = fell 25%). */
   maxDrawdownPct: number | null
 }
 
 const DAY_MS = 86_400_000
+/** NAVs are published on trading days only; about 252 of them make a year. */
+const TRADING_DAYS_PER_YEAR = 252
 /** Only report a 1-year return if we have a NAV within this many days of the 1-year mark. */
 const ONE_YEAR_TOLERANCE_DAYS = 15
 
@@ -32,14 +37,14 @@ export function fundMetrics(history: NavPoint[]): FundMetrics {
   const points = history.filter((point) => Number.isFinite(point.nav) && point.nav > 0)
   const latest = points[points.length - 1]
   if (!latest) {
-    return { latestNav: null, navDate: null, return1yPct: null, volatilityPct: null, maxDrawdownPct: null }
+    return { latestNav: null, navDate: null, return1yPct: null, annualVolatilityPct: null, maxDrawdownPct: null }
   }
 
   return {
     latestNav: latest.nav,
     navDate: latest.date,
     return1yPct: oneYearReturnPct(points),
-    volatilityPct: volatilityPct(points),
+    annualVolatilityPct: annualVolatilityPct(points),
     maxDrawdownPct: maxDrawdownPct(points),
   }
 }
@@ -62,7 +67,7 @@ function oneYearReturnPct(points: NavPoint[]): number | null {
   return round2((latest.nav / closest.nav - 1) * 100)
 }
 
-function volatilityPct(points: NavPoint[]): number | null {
+function annualVolatilityPct(points: NavPoint[]): number | null {
   // Daily % change between each NAV and the one before it.
   const changes: number[] = []
   for (let i = 1; i < points.length; i++) {
@@ -73,7 +78,7 @@ function volatilityPct(points: NavPoint[]): number | null {
   const mean = changes.reduce((sum, change) => sum + change, 0) / changes.length
   // Sample standard deviation (divide by n − 1).
   const variance = changes.reduce((sum, change) => sum + (change - mean) ** 2, 0) / (changes.length - 1)
-  return round2(Math.sqrt(variance))
+  return round2(Math.sqrt(variance * TRADING_DAYS_PER_YEAR))
 }
 
 /**
