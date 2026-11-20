@@ -5,7 +5,7 @@ import {
   type TransactionDTO,
   type WalletDTO,
 } from '@rupeeround/shared'
-import { ArrowRight, Bot, ChartColumnBig, ChevronRight, IndianRupee, Moon, QrCode, Sun } from 'lucide-react'
+import { ArrowRight, Bot, ChartColumnBig, ChevronRight, History, IndianRupee, Moon, QrCode, Sun } from 'lucide-react'
 import { Link } from 'react-router'
 import Card from '@/components/Card'
 import ProgressBar from '@/components/ProgressBar'
@@ -218,6 +218,22 @@ export default function Home() {
       <Reveal delay={160} className="mt-3 grid grid-cols-2 gap-3">
         <Tile to="/advisor" icon={Bot} title="Ask the AI advisor" caption="Mutual fund questions" />
         <Tile to="/funds" icon={ChartColumnBig} title="Compare funds" caption="Live NAV & returns" />
+      </Reveal>
+
+      <Reveal delay={200} className="mt-3">
+        <Link
+          to="/backtest"
+          className="flex items-center gap-4 rounded-3xl border border-line bg-card p-4 transition-colors hover:border-line-strong"
+        >
+          <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-subtle text-accent">
+            <History className="size-5" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">What if you'd started a year ago?</span>
+            <span className="block text-xs text-muted">Replay round-ups at real past fund prices</span>
+          </span>
+          <ChevronRight className="size-4 shrink-0 text-muted" />
+        </Link>
       </Reveal>
 
       <Reveal className="mt-8">

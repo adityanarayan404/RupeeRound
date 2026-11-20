@@ -1,5 +1,5 @@
 import { FUND_CATEGORY_LABELS, formatPaise, type PortfolioDTO, type WalletDTO } from '@rupeeround/shared'
-import { Bot, ChartColumnBig, ChevronRight, Info, PiggyBank, RefreshCw } from 'lucide-react'
+import { Bot, ChartColumnBig, ChevronRight, History, Info, PiggyBank, RefreshCw } from 'lucide-react'
 import { Link, useNavigate } from 'react-router'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import Button from '@/components/Button'
@@ -204,6 +204,15 @@ export default function Portfolio() {
           >
             <span className="flex items-center gap-2">
               <Bot className="size-4 text-accent" /> Ask AI
+            </span>
+            <ChevronRight className="size-4 text-muted" />
+          </Link>
+          <Link
+            to="/backtest"
+            className="col-span-2 flex items-center justify-between rounded-2xl border border-line bg-card px-4 py-3.5 text-sm font-semibold"
+          >
+            <span className="flex items-center gap-2">
+              <History className="size-4 text-accent" /> What if? Backtest round-ups at past prices
             </span>
             <ChevronRight className="size-4 text-muted" />
           </Link>

@@ -55,7 +55,7 @@ Start with task-relevant files below. Only follow imports or inspect other files
 - `client/src/index.css` - Tailwind v4 import, colour tokens for light and dark, animations
 - `client/src/components/PhoneFrame.tsx` - full screen on phones, centred 390×844 phone frame on desktop; also owns the overlay layer for sheets, toasts and confetti
 - `client/src/layouts/AppLayout.tsx` - tab screens plus `TabBar` (Home · Transactions · raised Scan · Portfolio · AI Advisor; Settings opens from the avatar on Home); `/funds` and `/goals` also use it
-- Routes: `/` Home, `/transactions`, `/pay` (`?scan=1` opens the QR scanner), `/portfolio`, `/funds` (compare) and `/funds/:id`, `/advisor` (AI Advisor chat, its own fixed layout), `/settings`; `/goals` and `/ai` redirect to `/advisor`
+- Routes: `/` Home, `/transactions`, `/pay` (`?scan=1` opens the QR scanner), `/portfolio`, `/funds` (compare) and `/funds/:id`, `/backtest` ("What if?": spending-profile round-ups replayed at real past NAVs via `shared/src/backtest.ts`, computed in the browser), `/advisor` (AI Advisor chat, its own fixed layout), `/settings`; `/goals` and `/ai` redirect to `/advisor`
 - `client/src/components/QrScanner.tsx` + `client/src/lib/upi.ts` - UPI QR scanning with `jsqr` (live camera needs HTTPS or localhost; photo fallback works everywhere)
 - `client/src/pages/` - one file per screen; `pages/auth/` holds phone → OTP → PIN sign-up and login
 - `client/src/context/` - auth session, theme, toasts

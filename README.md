@@ -89,6 +89,7 @@ Once the round-up wallet covers a fund's minimum, you invest it in a **Large, Mi
 | 🪙 | **Round-up wallet** | Choose a ₹5 / ₹10 / ₹20 / ₹50 / ₹100 step. Spare change collects in a wallet, with progress shown towards the chosen fund's minimum. |
 | ↪️ | **Carry-forward rule** | You can only invest once the wallet covers the fund minimum. Until then the balance carries forward, and you can top up the difference. |
 | 📈 | **Real fund data** | Three real index funds with live NAVs from mfapi.in, plus 1M / 3M / 1Y / 3Y returns, annualised volatility and drawdown computed from NAV history. |
+| ⏪ | **"What if?" backtest** | Pick a spending style (college student, first job, daily commuter, household), a fund, a period (6M / 1Y / 3Y) and a round-up step. A year of typical payments is replayed with RupeeRound's own rules and invested at the fund's **real past NAVs**: what it would be worth today, how it grew, and how every step compares. Simulated spending, real prices; it never predicts. |
 | 💼 | **Portfolio** | Units held, invested amount, current value and gain/loss at today's NAV. |
 | 🧭 | **Fund suggestion** | A three-question risk quiz scores you 0–6 and maps you to Large, Mid or Small Cap. The decision comes from fixed, unit-tested rules, and AI only words the explanation. |
 | 🤖 | **Ask RupeeRound AI** | A chat assistant that only answers mutual-fund questions. It can look up **any** Indian mutual fund on mfapi.in through tool calls, and refuses off-topic questions. |
@@ -160,6 +161,7 @@ flowchart TD
 | Scan & pay | `/pay?scan=1` | UPI QR scanner (`jsqr`), demo shop QR, round-up breakdown, PIN confirm, receipt |
 | Portfolio | `/portfolio` | Holdings, invested vs current value, gain/loss |
 | Compare funds | `/funds` | Large / Mid / Small Cap side by side, rule-based suggestion card |
+| What if? | `/backtest` | Spending-profile backtest at real past NAVs, growth chart, step comparison |
 | Fund detail | `/funds/:id` | NAV history chart (Recharts), returns, invest / carry-forward / top-up |
 | AI Advisor | `/advisor` | "Ask RupeeRound AI" chat |
 | Settings | `/settings` | Profile, round-up step, theme, PIN |
@@ -544,7 +546,7 @@ pnpm typecheck   # strict TypeScript, all packages
 
 Unit tests cover the parts where mistakes would cost money or trust:
 
-- **`shared/`**: paise formatting and parsing, round-up edge cases, fund metrics (returns, volatility, drawdown)
+- **`shared/`**: paise formatting and parsing, round-up edge cases, fund metrics (returns, volatility, drawdown), and the backtest (repeatable spending profiles, carry-forward, investing at the next NAV day)
 - **`server/`**: risk scoring table and the short-horizon override in `advisorRules`, and the assistant's reply filtering and refusal logic in `assistantText`
 
 ---

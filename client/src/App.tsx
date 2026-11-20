@@ -7,6 +7,7 @@ import ThemeProvider from './context/ThemeContext'
 import ToastProvider from './context/ToastContext'
 import AppLayout from './layouts/AppLayout'
 import Advisor from './pages/Advisor'
+import Backtest from './pages/Backtest'
 import CreateAccount from './pages/auth/CreateAccount'
 import EnterPin from './pages/auth/EnterPin'
 import PhoneEntry from './pages/auth/PhoneEntry'
@@ -56,6 +57,7 @@ export default function App() {
                   </Route>
                   {/* Full-screen flows */}
                   <Route path="/pay" element={<Pay />} />
+                  <Route path="/backtest" element={<Backtest />} />
                   <Route path="/funds/:fundId" element={<FundDetail />} />
 
                   {/* Old paths */}

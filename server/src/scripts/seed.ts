@@ -1,6 +1,6 @@
 // Creates (or resets) a demo account with a month of realistic activity.
 //   pnpm seed   →   log in with 98765 43210 and PIN 1234
-import { calculateRoundUp, unitsFor, type MerchantCategory } from '@rupeeround/shared'
+import { calculateRoundUp, seededRandom, unitsFor, type MerchantCategory } from '@rupeeround/shared'
 import { Types } from 'mongoose'
 import { connectDb, disconnectDb } from '../db.ts'
 import type { FundDocument } from '../models/Fund.ts'
@@ -37,17 +37,6 @@ const MERCHANTS: { name: string; category: MerchantCategory; min: number; max: n
   { name: 'Fashion Store', category: 'shopping', min: 299, max: 1499 },
   { name: 'Bookstore', category: 'shopping', min: 90, max: 650 },
 ]
-
-/** Small deterministic PRNG so every seed run produces the same data. */
-function mulberry32(seed: number): () => number {
-  let state = seed
-  return () => {
-    state = (state + 0x6d2b79f5) | 0
-    let t = Math.imul(state ^ (state >>> 15), 1 | state)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
 
 function daysAgo(days: number, hour: number, minute = 0): Date {
   const date = new Date()
@@ -107,7 +96,7 @@ async function main(): Promise<void> {
   })
 
   // ~45 days of everyday payments.
-  const random = mulberry32(42)
+  const random = seededRandom(42)
   const transactions = []
   let roundUpsPaise = 0
   for (let day = 45; day >= 0; day--) {
