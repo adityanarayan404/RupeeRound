@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { width: 1600px; height: 740px; background: #fff; font-family: Arial, sans-serif; color: #111; padding: 40px; position: relative; }
+  .box { position: absolute; border: 3px solid #111; border-radius: 16px; padding: 18px 22px; background: #fff; }
+  .box h3 { font-size: 26px; margin-bottom: 10px; }
+  .box p, .box li { font-size: 19px; line-height: 1.45; }
+  .box ul { list-style: none; }
+  .box li::before { content: '– '; }
+  .accent { background: #FFF4E0; border-color: #C77F14; }
+  .ext { border-style: dashed; }
+  .arrow { position: absolute; font-size: 18px; text-align: center; }
+  .line { position: absolute; background: #111; }
+  .head { position: absolute; width: 0; height: 0; }
+</style></head><body>
+  <!-- client -->
+  <div class="box" style="left:40px; top:40px; width:470px; height:330px">
+    <h3>Client (React 19 + Vite PWA)</h3>
+    <ul>
+      <li>Screens: Home, Pay, Transactions, Portfolio, Funds, What if?, AI Advisor, Settings</li>
+      <li>UPI QR scanner (jsQR)</li>
+      <li>api() fetch wrapper + useApi() cache</li>
+      <li>Tailwind CSS v4, Recharts charts</li>
+      <li>Backtest computed in the browser</li>
+    </ul>
+  </div>
+  <!-- server -->
+  <div class="box" style="left:640px; top:40px; width:470px; height:330px">
+    <h3>Server (Express 5 REST API)</h3>
+    <ul>
+      <li>helmet, CORS allow-list, rate limits</li>
+      <li>JWT auth, zod validation</li>
+      <li>Routes: auth, me, transactions, wallet, funds, investments, portfolio, advisor, assistant</li>
+      <li>Services: wallet, funds (NAV cache), advisor rules, AI assistant</li>
+    </ul>
+  </div>
+  <!-- shared -->
+  <div class="box accent" style="left:40px; top:480px; width:1070px; height:150px">
+    <h3>Shared package (@rupeeround/shared) — used by both client and server</h3>
+    <p>roundup.ts (round-up rule) · invest.ts (carry-forward rule, units) · metrics.ts (returns, volatility, drawdown) · backtest.ts · money.ts (paise) · API types</p>
+  </div>
+  <!-- externals -->
+  <div class="box" style="left:1240px; top:40px; width:320px; height:135px">
+    <h3>MongoDB Atlas</h3>
+    <p>Users, wallets, payments, investments, funds</p>
+  </div>
+  <div class="box ext" style="left:1240px; top:190px; width:320px; height:120px">
+    <h3>mfapi.in</h3>
+    <p>Real NAV history, cached 6 hours</p>
+  </div>
+  <div class="box ext" style="left:1240px; top:325px; width:320px; height:135px">
+    <h3>Groq LLM</h3>
+    <p>Words explanations and answers chat; never decides</p>
+  </div>
+
+  <!-- client -> server -->
+  <div class="line" style="left:512px; top:203px; width:118px; height:3px"></div>
+  <div class="head" style="left:622px; top:195px; border-left:16px solid #111; border-top:9px solid transparent; border-bottom:9px solid transparent"></div>
+  <div class="arrow" style="left:505px; top:151px; width:140px">HTTPS /api<br>Bearer JWT</div>
+  <!-- server -> externals -->
+  <div class="line" style="left:1112px; top:105px; width:118px; height:3px"></div>
+  <div class="head" style="left:1222px; top:97px; border-left:16px solid #111; border-top:9px solid transparent; border-bottom:9px solid transparent"></div>
+  <div class="line" style="left:1112px; top:248px; width:118px; height:3px"></div>
+  <div class="head" style="left:1222px; top:240px; border-left:16px solid #111; border-top:9px solid transparent; border-bottom:9px solid transparent"></div>
+  <div class="line" style="left:1112px; top:345px; width:118px; height:3px"></div>
+  <div class="head" style="left:1222px; top:337px; border-left:16px solid #111; border-top:9px solid transparent; border-bottom:9px solid transparent"></div>
+  <!-- shared -> client/server -->
+  <div class="line" style="left:273px; top:372px; width:3px; height:106px; background:#C77F14"></div>
+  <div class="line" style="left:873px; top:372px; width:3px; height:106px; background:#C77F14"></div>
+  <div class="arrow" style="left:285px; top:410px; width:200px; text-align:left; color:#8a560b">imports</div>
+  <div class="arrow" style="left:885px; top:410px; width:200px; text-align:left; color:#8a560b">imports</div>
+
+  <div class="arrow" style="left:40px; top:665px; width:1520px; font-size:20px; color:#444">Hosting: client on Vercel · API on Render · database on MongoDB Atlas. Payments and investments are simulated; fund prices are real.</div>
+</body></html>

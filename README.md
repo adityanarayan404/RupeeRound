@@ -644,8 +644,8 @@ This only resets the demo user (98765 43210) and leaves other accounts alone.
 
 ## Contributing
 
-1. The repo owner adds teammates under **Settings → Collaborators**; they accept the invite.
-2. Clone, install and create `server/.env` as in [Run it locally](#run-it-locally). Get the secret values privately from the team, never through Git.
+1. Fork the repository, or ask the owner for collaborator access.
+2. Clone, install and create `server/.env` as in [Run it locally](#run-it-locally), using your own MongoDB connection string and keys. Never commit secrets to Git.
 3. Work on a branch and open a pull request, because merging to `main` deploys to production:
    ```bash
    git checkout main && git pull
@@ -667,6 +667,6 @@ RupeeRound is a **hackathon prototype** built for learning and demonstration. No
 
 <div align="center">
 
-Built by **Aditya Narayan** and team for an 8-hour college hackathon.
+Built by **Aditya Narayan** (B.Tech CSE, Institute of Engineering and Management). First prototyped at an 8-hour college hackathon.
 
 </div>

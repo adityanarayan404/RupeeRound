@@ -1,0 +1,8 @@
+{
+  "name": "rupeeround-report",
+  "private": true,
+  "description": "Generator for the RupeeRound project report (Word + PDF)",
+  "dependencies": {
+    "docx": "9.5.1"
+  }
+}
